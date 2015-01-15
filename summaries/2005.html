@@ -1,0 +1,713 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+<title>  OIE World Animal Health Information System</title>
+
+<link rel="stylesheet" type="text/css" href="/wahis_2/public/../public/css/cssCompressor.php" />
+<script type="text/javascript" src="/wahis_2/public/../public/js/iepngfix_tilebg.js"></script>
+<script type="text/javascript" src="/wahis_2/public/../public/js/menu.js"></script>
+<script type="text/javascript" src="/wahis_2/public/../public/js/ie6.js"></script>
+<script type="text/javascript" src="/wahis_2/public/../public/lightbox/jquery.js"></script>
+<script type="text/javascript" src="/wahis_2/public/../public/js/wahid.js"></script>
+
+</head>
+<body>
+<div id="MainContainerBig2">
+	<div id="HeaderContainerBig">
+	<a class="Logo"></a>
+	<div class="retourOIE"><a href="http://www.oie.int/">OIE Home Page</a></div>
+	<div class="LangPanel">
+											English
+								 | 						<a href="javascript:submitlanguage('/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/index/newlang/fr')" >Français</a>
+			
+								 | 						<a href="javascript:submitlanguage('/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/index/newlang/es')" >Español</a>
+			
+						</div>
+
+    <form name="general_submit_form" id="generalSubmitForm" action="" method="get">
+        
+<input type="hidden" name="header_disease_id_aquatic" value="-999" id="header_disease_id_aquatic" />
+        
+<input type="hidden" name="header_disease_id_terrestrial" value="12" id="header_disease_id_terrestrial" />
+        
+<input type="hidden" name="header_disease_type" value="0" id="header_disease_type" />
+        
+<input type="hidden" name="header_year" value="2005" id="header_year" />
+        
+<input type="hidden" name="header_disease_id_hidden" value="0" id="header_disease_id_hidden" />
+        
+<input type="hidden" name="header_disease_type_hidden" value="0" id="header_disease_type_hidden" />
+        
+<input type="hidden" name="header_reportid" value="0" id="header_reportid" />
+        
+<input type="hidden" name="header_selected_disease_name_hidden" value="0" id="header_selected_disease_name_hidden" />
+        
+<input type="hidden" name="header_summary_country" value="0" id="header_summary_country" />
+        </form>
+    
+    <script language="javascript">
+
+         function submitlanguage(action)
+         {
+             document.getElementById('generalSubmitForm').action=action;
+             document.getElementById('generalSubmitForm').submit();
+         }
+    </script>
+    
+<div class="noFloat"></div>		    </div>
+	<div id="MenuContainerBigBg">
+		<a class="AccueilBtn" href="/wahis_2/public/wahid.php/Wahidhome/Home" style="width:150px">WAHID home page</a> 
+    
+                    <div onmouseover="toggleIframe(1,1);switchMenu(1,1,1);" onmouseout="toggleIframe(1,0);switchMenu(1,1,0);" class="menuTitle">
+                <div id="mn_1_Header" class="menuHeader" ><a id="header_1_1" href="/wahis_2/public/wahid.php/Countryinformation/Countryhome">Country information</a></div>
+                <div onmouseover="toggleIframe(1,1);toggleHeader(1,1,1);" onmouseout="toggleIframe(1,0);toggleHeader(1,1,0);" class="menuOpt_admin menuOpt-1" id="mn_1_opt_1">
+                     
+                    <div onclick="javascript:toggleText(1,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Countryreports" class="arrowLink">Exceptional epidemiological events</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line1_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(2,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Animalsituation" class="arrowLink">Animal health situation</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line2_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(3,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Veterinarians" class="arrowLink">Veterinarians and paraveterinarians</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line3_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(4,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Animalpopulation" class="arrowLink">Animal population</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line4_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(5,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Zoonoses" class="arrowLink">Zoonoses in Humans</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line5_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(6,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Countrylaboratoris" class="arrowLink">Laboratory capability</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line6_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(7,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Vaccines" class="arrowLink">Vaccine production</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line7_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(8,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Vaccination" class="arrowLink">Vaccination</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line8_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(9,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Reporting" class="arrowLink">OIE reporting history</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line9_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(10,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Countrytimelines" class="arrowLink">Disease timelines</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line10_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(11,1);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Countryinformation/Diseasetimeseries" class="arrowLink">Disease time series analysis</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line11_html1">   
+                                        </div>
+                    <div class="separ"></div>
+                                <div class="dropdownMenuEnd"></div>
+                </div>
+                
+            </div>
+                    <div onmouseover="toggleIframe(2,1);switchMenu(2,1,1);" onmouseout="toggleIframe(2,0);switchMenu(2,1,0);" class="menuTitle">
+                <div id="mn_2_Header" class="menuHeaderOn" ><a id="header_2_1" href="/wahis_2/public/wahid.php/Diseaseinformation/Diseasehome">Disease information</a></div>
+                <div onmouseover="toggleIframe(2,1);toggleHeader(2,1,1);" onmouseout="toggleIframe(2,0);toggleHeader(2,1,0);" class="menuOpt_admin menuOpt-1" id="mn_2_opt_1">
+                     
+                    <div onclick="javascript:toggleText(1,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/Immsummary" class="arrowLink">Immediate notifications and Follow-ups</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line1_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(2,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/WI" class="arrowLink">Weekly Disease Information</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line2_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(3,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/reportarchive" class="arrowLink">Report archive</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line3_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(4,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/Diseaseoutbreakmaps" class="arrowLink">Disease outbreak maps</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line4_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(5,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/Diseasedistributionmap" class="arrowLink">Disease distribution maps</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line5_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(6,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/statusdetail" class="arrowLink">Detailed country(ies) disease incidence</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line6_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(7,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/statuslist" class="arrowLink">List of countries by sanitary situation</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line7_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(8,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/Diseasetimelines" class="arrowLink">Disease timelines</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line8_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(9,2);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseaseinformation/general" class="arrowLink">General Disease Information</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line9_html2">   
+                                        </div>
+                    <div class="separ"></div>
+                                <div class="dropdownMenuEnd"></div>
+                </div>
+                
+            </div>
+                    <div onmouseover="toggleIframe(3,1);switchMenu(3,1,1);" onmouseout="toggleIframe(3,0);switchMenu(3,1,0);" class="menuTitle">
+                <div id="mn_3_Header" class="menuHeader" ><a id="header_3_1" href="/wahis_2/public/wahid.php/Diseasecontrol/controlhome">Disease control measures</a></div>
+                <div onmouseover="toggleIframe(3,1);toggleHeader(3,1,1);" onmouseout="toggleIframe(3,0);toggleHeader(3,1,0);" class="menuOpt_admin menuOpt-1" id="mn_3_opt_1">
+                     
+                    <div onclick="javascript:toggleText(1,3);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseasecontrol/measures" class="arrowLink">Disease control measures</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line1_html3">   
+                                        </div>
+                    <div class="separ"></div>
+                     
+                    <div onclick="javascript:toggleText(2,3);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="/wahis_2/public/wahid.php/Diseasecontrol/controlmeasuresmap" class="arrowLink">Control measures maps</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line2_html3">   
+                                        </div>
+                    <div class="separ"></div>
+                                <div class="dropdownMenuEnd"></div>
+                </div>
+                
+            </div>
+                    <div onmouseover="toggleIframe(4,1);switchMenu(4,1,1);" onmouseout="toggleIframe(4,0);switchMenu(4,1,0);" class="menuTitle">
+                <div id="mn_4_Header" class="menuHeader" ><a id="header_4_1" href="#">Data between 1996 and 2004</a></div>
+                <div onmouseover="toggleIframe(4,1);toggleHeader(4,1,1);" onmouseout="toggleIframe(4,0);toggleHeader(4,1,0);" class="menuOpt_admin menuOpt-1" id="mn_4_opt_1">
+                     
+                    <div onclick="javascript:toggleText(1,4);setIframe(5); " onmouseover="this.className='rapport_Hover';" onmouseout="this.className='rapport';"  class="rapport">
+                            								<a href="http://www.oie.int/en/animal-health-in-the-world/the-world-animal-health-information-system/data-before-2005-handistatus/" class="arrowLink">Data between 1996 and 2004</a>
+							                    </div>
+                    <div class="arrowLinks hiden" id="admin_line1_html4">   
+                                        </div>
+                    <div class="separ"></div>
+                                <div class="dropdownMenuEnd"></div>
+                </div>
+                
+            </div>
+        		<div class="noFloat"></div>
+</div>
+							<div class="ContentBig">
+	<div class="Top"></div>
+  	<div class="Mid">
+        <form name="diseaseform" id="diseaseform" method="post">  
+       
+        <link type="text/css" href="/wahis_2/public/css/jquery.cluetip.css" rel="stylesheet" />
+<script type="text/javascript" src="/wahis_2/public/js/jquery.cluetip.js"></script>
+
+<script language='javascript' type='text/javascript'>
+    function changeDiseaseDropdown(diseasetype) {
+    if (diseasetype == 1) {
+            document.diseaseform.disease_id_terrestrial.options[0].selected=true;
+    } else {
+            document.diseaseform.disease_id_aquatic.options[0].selected=true;
+    }
+    }
+
+    function changeRadio(diseasetype) {
+    if (diseasetype.name == 'disease_id_aquatic') {
+            document.diseaseform.disease_id_terrestrial.options[0].selected=true;
+            document.getElementById('disease_type-1').checked=true;
+            if (document.diseaseform.disease_id_aquatic.value != 99999) {
+                document.diseaseform.disease_type_hidden.value = 1;
+                document.diseaseform.disease_id_hidden.value = document.diseaseform.disease_id_aquatic.value;
+                var dropdownIndex = document.diseaseform.disease_id_aquatic.selectedIndex;
+                document.diseaseform.selected_disease_name_hidden.value = document.diseaseform.disease_id_aquatic[dropdownIndex].label;
+                document.diseaseform.submit();
+            }
+    } else {
+            document.diseaseform.disease_id_aquatic.options[0].selected=true;
+            document.getElementById('disease_type-0').checked=true;
+            if (document.diseaseform.disease_id_terrestrial.value != 99999) {
+                document.diseaseform.disease_type_hidden.value = 0;
+                document.diseaseform.disease_id_hidden.value = document.diseaseform.disease_id_terrestrial.value;
+
+                var dropdownIndex = document.diseaseform.disease_id_terrestrial.selectedIndex;
+                document.diseaseform.selected_disease_name_hidden.value = document.diseaseform.disease_id_terrestrial[dropdownIndex].label;
+
+                document.diseaseform.submit();
+            }
+    }
+ }
+
+    $(document).ready(function() {
+    	$('a.LegendBtn').cluetip.defaults.width = 500; 
+        $('a.LegendBtn').cluetip({splitTitle: '|'});
+    });
+</script>
+
+
+<input type="hidden" name="disease_type_hidden" value="" id="disease_type_hidden" />
+
+<input type="hidden" name="disease_id_hidden" value="" id="disease_id_hidden" />
+
+<input type="hidden" name="selected_disease_name_hidden" value="" id="selected_disease_name_hidden" />
+
+<div class="Title floatL searchdiv">
+<b>Choose disease:</b>&nbsp;&nbsp;
+</div>
+
+<div class="GreyContact17" style="padding:20px 0;width:97%;font-size:12px">
+<tr>
+<td width="20"></td>
+<td width="80">
+<table>
+<tr><td>
+
+<label for="disease_type-0"><input type="radio" name="disease_type" id="disease_type-0" value="0" checked="checked" onclick="changeDiseaseDropdown(this.value)" class="etichete" />Terrestrial:</label><br/><br/><label for="disease_type-1"><input type="radio" name="disease_type" id="disease_type-1" value="1" onclick="changeDiseaseDropdown(this.value)" class="etichete" />Aquatic:</label>
+</td>
+<td>
+<table>
+<tr><td style="padding:4px;">
+
+<select name="disease_id_terrestrial" id="disease_id_terrestrial" onchange="javascript:changeRadio(this);">
+    <option value="-999" label="---Terrestrial ---">---Terrestrial ---</option>
+    <option value="121" label="Acarapisosis of honey bees (- -) ">Acarapisosis of honey bees (- -) </option>
+    <option value="11" label="African horse sickness (- -) ">African horse sickness (- -) </option>
+    <option value="12" label="African swine fever (- -) " selected="selected">African swine fever (- -) </option>
+    <option value="122" label="American foulbrood of honey bees (- -) ">American foulbrood of honey bees (- -) </option>
+    <option value="17" label="Anthrax (- -) ">Anthrax (- -) </option>
+    <option value="71" label="Atrophic rhinitis of swine (- -) ">Atrophic rhinitis of swine (- -) </option>
+    <option value="18" label="Aujeszky’s disease (- -) ">Aujeszky’s disease (- -) </option>
+    <option value="88" label="Avian chlamydiosis (- -) ">Avian chlamydiosis (- -) </option>
+    <option value="78" label="Avian infect. laryngotracheitis (- -) ">Avian infect. laryngotracheitis (- -) </option>
+    <option value="77" label="Avian infectious bronchitis (- -) ">Avian infectious bronchitis (- -) </option>
+    <option value="199" label="Avian mycoplasmosis (M.synoviae) (2006 -) ">Avian mycoplasmosis (M.synoviae) (2006 -) </option>
+    <option value="79" label="Avian tuberculosis (- -) ">Avian tuberculosis (- -) </option>
+    <option value="9" label="Bluetongue (- -) ">Bluetongue (- -) </option>
+    <option value="31" label="Bov. genital campylobacteriosis (- -) ">Bov. genital campylobacteriosis (- -) </option>
+    <option value="28" label="Bovine anaplasmosis (- -) ">Bovine anaplasmosis (- -) </option>
+    <option value="29" label="Bovine babesiosis (- -) ">Bovine babesiosis (- -) </option>
+    <option value="30" label="Bovine brucellosis (- -) ">Bovine brucellosis (- -) </option>
+    <option value="33" label="Bovine cysticercosis (- -) ">Bovine cysticercosis (- -) </option>
+    <option value="42" label="Bovine spongiform encephalopathy (- -) ">Bovine spongiform encephalopathy (- -) </option>
+    <option value="32" label="Bovine tuberculosis (- -) ">Bovine tuberculosis (- -) </option>
+    <option value="189" label="Bovine viral diarrhoea (2006 -) ">Bovine viral diarrhoea (2006 -) </option>
+    <option value="182" label="Brucellosis (Brucella abortus) (2006 -) ">Brucellosis (Brucella abortus) (2006 -) </option>
+    <option value="183" label="Brucellosis (Brucella melitensis) (2006 -) ">Brucellosis (Brucella melitensis) (2006 -) </option>
+    <option value="186" label="Brucellosis (Brucella suis) (2006 -) ">Brucellosis (Brucella suis) (2006 -) </option>
+    <option value="193" label="Camelpox (2006 -) ">Camelpox (2006 -) </option>
+    <option value="46" label="Caprine arthritis/encephalitis (- -) ">Caprine arthritis/encephalitis (- -) </option>
+    <option value="13" label="Classical swine fever (- -) ">Classical swine fever (- -) </option>
+    <option value="47" label="Contagious agalactia (- -) ">Contagious agalactia (- -) </option>
+    <option value="6" label="Contagious bov. pleuropneumonia (- -) ">Contagious bov. pleuropneumonia (- -) </option>
+    <option value="48" label="Contagious cap. pleuropneumonia (- -) ">Contagious cap. pleuropneumonia (- -) </option>
+    <option value="55" label="Contagious equine metritis (- -) ">Contagious equine metritis (- -) </option>
+    <option value="187" label="Crimean Congo haemorrhagic fever (2006 -) ">Crimean Congo haemorrhagic fever (2006 -) </option>
+    <option value="34" label="Dermatophilosis (- -) ">Dermatophilosis (- -) </option>
+    <option value="56" label="Dourine (- -) ">Dourine (- -) </option>
+    <option value="81" label="Duck virus enteritis (- -) ">Duck virus enteritis (- -) </option>
+    <option value="80" label="Duck virus hepatitis (- -) ">Duck virus hepatitis (- -) </option>
+    <option value="19" label="Echinococcosis/hydatidosis (- -) ">Echinococcosis/hydatidosis (- -) </option>
+    <option value="1145" label="Echinococcus granulosus (Infection with) (2014 -) ">Echinococcus granulosus (Infection with) (2014 -) </option>
+    <option value="1146" label="Echinococcus multilocularis (Infection with) (2014 -) ">Echinococcus multilocularis (Infection with) (2014 -) </option>
+    <option value="185" label="Encephalomyelitis (West.) (2006 -) ">Encephalomyelitis (West.) (2006 -) </option>
+    <option value="75" label="Enterovirus encephalomyelitis (- -) ">Enterovirus encephalomyelitis (- -) </option>
+    <option value="49" label="Enzootic abortion (chlamydiosis) (- -) ">Enzootic abortion (chlamydiosis) (- -) </option>
+    <option value="35" label="Enzootic bovine leukosis (- -) ">Enzootic bovine leukosis (- -) </option>
+    <option value="231" label="Epizootic haemorrhagic disease (2009 -) ">Epizootic haemorrhagic disease (2009 -) </option>
+    <option value="57" label="Epizootic lymphangitis (- -) ">Epizootic lymphangitis (- -) </option>
+    <option value="1147" label="Equid herpesvirus-1 (EHV-1) (Infection with) (2014 -) ">Equid herpesvirus-1 (EHV-1) (Infection with) (2014 -) </option>
+    <option value="232" label="Equine encephalomyelitis (Eastern) (2009 -) ">Equine encephalomyelitis (Eastern) (2009 -) </option>
+    <option value="59" label="Equine infectious anaemia (- -) ">Equine infectious anaemia (- -) </option>
+    <option value="60" label="Equine influenza (- -) ">Equine influenza (- -) </option>
+    <option value="61" label="Equine piroplasmosis (- -) ">Equine piroplasmosis (- -) </option>
+    <option value="62" label="Equine rhinopneumonitis (- -) ">Equine rhinopneumonitis (- -) </option>
+    <option value="65" label="Equine viral arteritis (- -) ">Equine viral arteritis (- -) </option>
+    <option value="123" label="European foulbrood of honey bees (- -) ">European foulbrood of honey bees (- -) </option>
+    <option value="1" label="Foot and mouth disease (- -) ">Foot and mouth disease (- -) </option>
+    <option value="82" label="Fowl cholera (- -) ">Fowl cholera (- -) </option>
+    <option value="83" label="Fowl pox (- -) ">Fowl pox (- -) </option>
+    <option value="84" label="Fowl typhoid (- -) ">Fowl typhoid (- -) </option>
+    <option value="63" label="Glanders (- -) ">Glanders (- -) </option>
+    <option value="36" label="Haemorrhagic septicaemia (- -) ">Haemorrhagic septicaemia (- -) </option>
+    <option value="20" label="Heartwater (- -) ">Heartwater (- -) </option>
+    <option value="15" label="Highly path. avian influenza (- -) ">Highly path. avian influenza (- -) </option>
+    <option value="67" label="Horse mange (- -) ">Horse mange (- -) </option>
+    <option value="64" label="Horse pox (- -) ">Horse pox (- -) </option>
+    <option value="37" label="Inf.bov.rhinotracheit. (IBR/IPV) (- -) ">Inf.bov.rhinotracheit. (IBR/IPV) (- -) </option>
+    <option value="85" label="Infec bursal disease (Gumboro) (- -) ">Infec bursal disease (Gumboro) (- -) </option>
+    <option value="200" label="Japanese encephalitis (2006 -) ">Japanese encephalitis (2006 -) </option>
+    <option value="126" label="Leishmaniosis (- -) ">Leishmaniosis (- -) </option>
+    <option value="21" label="Leptospirosis (- -) ">Leptospirosis (- -) </option>
+    <option value="201" label="Low pathogenic avian influenza (poultry) (2006 -) ">Low pathogenic avian influenza (poultry) (2006 -) </option>
+    <option value="7" label="Lumpy skin disease (- -) ">Lumpy skin disease (- -) </option>
+    <option value="54" label="Maedi-visna (- -) ">Maedi-visna (- -) </option>
+    <option value="86" label="Marek's disease (- -) ">Marek's disease (- -) </option>
+    <option value="87" label="Mycoplasmosis (M. gallisepticum) (- -) ">Mycoplasmosis (M. gallisepticum) (- -) </option>
+    <option value="90" label="Myxomatosis (- -) ">Myxomatosis (- -) </option>
+    <option value="25" label="N. w. screwworm (C. hominivorax) (- -) ">N. w. screwworm (C. hominivorax) (- -) </option>
+    <option value="51" label="Nairobi sheep disease (- -) ">Nairobi sheep disease (- -) </option>
+    <option value="16" label="Newcastle disease (- -) ">Newcastle disease (- -) </option>
+    <option value="190" label="Nipah virus encephalitis (2006 -) ">Nipah virus encephalitis (2006 -) </option>
+    <option value="26" label="O. w. screwworm (C. bezziana) (- -) ">O. w. screwworm (C. bezziana) (- -) </option>
+    <option value="44" label="Ovine epididymitis (B. ovis) (- -) ">Ovine epididymitis (B. ovis) (- -) </option>
+    <option value="50" label="Ovine pulmonary adenomatosis (- -) ">Ovine pulmonary adenomatosis (- -) </option>
+    <option value="24" label="Paratuberculosis (- -) ">Paratuberculosis (- -) </option>
+    <option value="5" label="Peste des petits ruminants (- -) ">Peste des petits ruminants (- -) </option>
+    <option value="72" label="Porcine cysticercosis (- -) ">Porcine cysticercosis (- -) </option>
+    <option value="76" label="Porcine reproductive/respiratory syndr. (- -) ">Porcine reproductive/respiratory syndr. (- -) </option>
+    <option value="89" label="Pullorum disease (- -) ">Pullorum disease (- -) </option>
+    <option value="22" label="Q fever (- -) ">Q fever (- -) </option>
+    <option value="92" label="Rabbit haemorrhagic disease (- -) ">Rabbit haemorrhagic disease (- -) </option>
+    <option value="23" label="Rabies (- -) ">Rabies (- -) </option>
+    <option value="8" label="Rift Valley fever (- -) ">Rift Valley fever (- -) </option>
+    <option value="194" label="Rinderpest (2006 -) ">Rinderpest (2006 -) </option>
+    <option value="52" label="Salmonellosis (S. abortusovis) (- -) ">Salmonellosis (S. abortusovis) (- -) </option>
+    <option value="53" label="Scrapie (- -) ">Scrapie (- -) </option>
+    <option value="10" label="Sheep pox and goat pox (- -) ">Sheep pox and goat pox (- -) </option>
+    <option value="192" label="Small hive beetle infestation (2006 -) ">Small hive beetle infestation (2006 -) </option>
+    <option value="233" label="Surra (Trypanosoma evansi) (2009 -) ">Surra (Trypanosoma evansi) (2009 -) </option>
+    <option value="38" label="Theileriosis (- -) ">Theileriosis (- -) </option>
+    <option value="74" label="Transmissible gastroenteritis (- -) ">Transmissible gastroenteritis (- -) </option>
+    <option value="27" label="Trichinellosis (- -) ">Trichinellosis (- -) </option>
+    <option value="39" label="Trichomonosis (- -) ">Trichomonosis (- -) </option>
+    <option value="181" label="Tropilaelaps infestation of honey bees (- -) ">Tropilaelaps infestation of honey bees (- -) </option>
+    <option value="40" label="Trypanosomosis (- -) ">Trypanosomosis (- -) </option>
+    <option value="195" label="Tularemia (2006 -) ">Tularemia (2006 -) </option>
+    <option value="191" label="Turkey rhinotracheitis (2006 -) ">Turkey rhinotracheitis (2006 -) </option>
+    <option value="125" label="Varroosis of honey bees (- -) ">Varroosis of honey bees (- -) </option>
+    <option value="70" label="Venezuelan equ.encephalomyelitis (- -) ">Venezuelan equ.encephalomyelitis (- -) </option>
+    <option value="188" label="West Nile Fever (2006 -) ">West Nile Fever (2006 -) </option>
+</select>
+</td>
+<td rowspan="2">
+<a class="LegendBtn" href="javascript:;" title="(year -) Year of listing of the disease &#10 (- year) Year of delisting of the disease &#10 (year year) Period of listing of the disease &#10 (- -) Listed disease">Legend</a>
+</td>
+</tr>
+<tr>
+<td style="padding:4px;">
+
+<select name="disease_id_aquatic" id="disease_id_aquatic" onchange="javascript:changeRadio(this);">
+    <option value="-999" label="--- Aquatic ---">--- Aquatic ---</option>
+    <option value="179" label="Crayfish plague (Aphanomyces astaci) (- -) ">Crayfish plague (Aphanomyces astaci) (- -) </option>
+    <option value="105" label="Epizoot. haematopoietic necrosis (- -) ">Epizoot. haematopoietic necrosis (- -) </option>
+    <option value="161" label="Epizootic ulcerative syndrome (- -) ">Epizootic ulcerative syndrome (- -) </option>
+    <option value="97" label="Infect. haematopoietic necrosis (- -) ">Infect. haematopoietic necrosis (- -) </option>
+    <option value="237" label="Infection with abalone herpes-like virus (2011 -) ">Infection with abalone herpes-like virus (2011 -) </option>
+    <option value="234" label="Infection with Batrachochytrium dendrobatidis (2009 -) ">Infection with Batrachochytrium dendrobatidis (2009 -) </option>
+    <option value="168" label="Infection with Bonamia exitiosa (- -) ">Infection with Bonamia exitiosa (- -) </option>
+    <option value="167" label="Infection with Bonamia ostreae (- -) ">Infection with Bonamia ostreae (- -) </option>
+    <option value="240" label="Infection with Gyrodactylus salaris (2012 -) ">Infection with Gyrodactylus salaris (2012 -) </option>
+    <option value="170" label="Infection with Marteilia refringens (- -) ">Infection with Marteilia refringens (- -) </option>
+    <option value="172" label="Infection with Perkinsus marinus (- -) ">Infection with Perkinsus marinus (- -) </option>
+    <option value="202" label="Infection with Perkinsus olseni (2006 -) ">Infection with Perkinsus olseni (2006 -) </option>
+    <option value="235" label="Infection with ranavirus (2009 -) ">Infection with ranavirus (2009 -) </option>
+    <option value="1149" label="Infection with salmonid alphavirus (2014 -) ">Infection with salmonid alphavirus (2014 -) </option>
+    <option value="204" label="Infection with Xenohaliotis californiensis (2006 -) ">Infection with Xenohaliotis californiensis (2006 -) </option>
+    <option value="178" label="Infectious hypodermal and haematopoietic necrosis (- -) ">Infectious hypodermal and haematopoietic necrosis (- -) </option>
+    <option value="238" label="Infectious myonecrosis (2011 -) ">Infectious myonecrosis (2011 -) </option>
+    <option value="160" label="Infectious salmon anaemia (- -) ">Infectious salmon anaemia (- -) </option>
+    <option value="1148" label="Infectious salmon anaemia virus (HPR-deleted or HPR0 genotypes) (Infection with)  (2014 -) ">Infectious salmon anaemia virus (HPR-deleted or HPR0 genotypes) (Infection with)  (2014 -) </option>
+    <option value="224" label="Koi herpesvirus disease (2007 -) ">Koi herpesvirus disease (2007 -) </option>
+    <option value="239" label="Necrotising hepatopancreatitis (2011 -) ">Necrotising hepatopancreatitis (2011 -) </option>
+    <option value="165" label="Red sea bream iridoviral disease (- -) ">Red sea bream iridoviral disease (- -) </option>
+    <option value="96" label="Spring viraemia of carp (- -) ">Spring viraemia of carp (- -) </option>
+    <option value="118" label="Taura syndrome (- -) ">Taura syndrome (- -) </option>
+    <option value="93" label="Viral haemorrhagic septicaemia (- -) ">Viral haemorrhagic septicaemia (- -) </option>
+    <option value="119" label="White spot disease (- -) ">White spot disease (- -) </option>
+    <option value="229" label="White tail disease (2008 -) ">White tail disease (2008 -) </option>
+    <option value="120" label="Yellow head disease (- -) ">Yellow head disease (- -) </option>
+</select>
+</td>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td></tr>
+</div>
+        
+ 
+    
+<script language="javascript">
+function outbreaklist(code, reportid)
+{
+	fm = document.listoutbreak;
+    fm.reportid.value = reportid;
+    fm.summary_country.value = code;
+    fm.submit();
+}
+
+function goback()
+{
+	fm = document.backform;
+    fm.submit();
+}
+function outbreak_report(code, reportid)
+{
+    fm = document.outbreakreport;
+    fm.reportid.value = reportid;
+    fm.summary_country.value = code;
+    fm.submit();
+}
+</script>
+<div class="ContentBigTable">
+                  <div class="MidBigTable zoonmain">
+<div class="ContentBig">
+			<div>
+			     
+                <form action="" method="POST" name="reportarchive">
+			    <table width="70%" cellspacing="0" cellpadding="0" border="0" class="TableChoisir floatL">
+                  <tbody>
+                  <tr>
+                    <td class="topbigtabletitle27">
+                        Summary of Immediate notifications and Follow-ups - 2005
+                    </td>
+                    </tr>
+                    <tr>
+                        <td class="topbigtabletitle27">
+                            <br>African swine fever<br><br>
+                        </td>
+                    </tr>
+                  <tr>
+                    <td>
+                        <b class="txtfont">Year :</b>
+<select name="year" id="year" onchange="javascript:this.form.submit();">
+    <option value="2005" label="2005" selected="selected">2005</option>
+    <option value="2006" label="2006">2006</option>
+    <option value="2007" label="2007">2007</option>
+    <option value="2008" label="2008">2008</option>
+    <option value="2009" label="2009">2009</option>
+    <option value="2010" label="2010">2010</option>
+    <option value="2011" label="2011">2011</option>
+    <option value="2012" label="2012">2012</option>
+    <option value="2013" label="2013">2013</option>
+    <option value="2014" label="2014">2014</option>
+    <option value="2015" label="2015">2015</option>
+</select><br><br>
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                  <td>
+                                    <table class="Table27" style="border-collapse:collapse">
+                <tbody>
+                  <tr>
+                    <td class="filtrer_ths ta_left">Country name</td>
+                    <td class="filtrer_ths ta_left">Status</td>
+                    <td class="filtrer_ths ta_left">Number of outbreaks</td>
+                    <td class="filtrer_ths ta_left">Event summary</td>
+                    <td class="filtrer_ths ta_left">Full report</td>
+                    <td colspan="6" class="filtrer_ths ta_left last">Animals affected</td>
+                </tr>                                                                                    <tr class="outbreakdetails">                            
+                                                         <td class="filtrer_tds vacborder outbreak_country">
+                             	Nigeria
+                             </td>
+                                                                                      
+                            
+                            <td class="filtrer_tds vacborder" color='red'>
+                             Resolved<br>25/11/2005
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                            <a href="javascript:;" onclick="outbreaklist('NGA',5532);">
+                            <img src='/wahis_2/public/images/magnify.gif' height='16' width='16' alt='View' border='0'>
+                             3
+                             </a>
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                             <a href="/wahis_2/public/wahid.php/Reviewreport/Review/viewsummary?reportid=5532">
+                             <img src='/wahis_2/public/images/view.gif' height='16' width='16' alt='View' border='0'>
+                             Summary
+                             </a>
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                            <a href='javascript: open_report("/wahis_2/public/wahid.php/Reviewreport/Review?page_refer=MapFullEventReport&",5532);'>
+                            <img height="16px" width="16px" src='/wahis_2/public/images/view.gif'  border='0' >
+                            Full report
+                             </a>
+                            </td>
+                            <td class="filtrer_ths ta_left">Species</td>
+                            <td class="filtrer_ths ta_left">Susceptible</td>
+                            <td class="filtrer_ths ta_left">Cases</td>
+                            <td class="filtrer_ths ta_left">Deaths</td>
+                            <td class="filtrer_ths ta_left">Destroyed</td>
+                            <td class="filtrer_ths ta_left last">Slaughtered</td>
+                        </tr>
+                        
+                                                        <tr>
+                            <td class="filtrer_tds vacborder outbreak_country">&nbsp;</td>
+                            <td colspan="4" class="filtrer_tds vacborder">&nbsp;</td>
+                            <td class="filtrer_tds vacborder">
+                                Swine
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                229
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                40
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                65
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                
+                            </td>
+                            <td class="filtrer_tds vacborder last">
+                                
+                            </td>
+                            </tr>
+                                                        <tr>
+                            <td class="filtrer_tds vacborder outbreak_country">&nbsp;</td>
+                            <td colspan="4" class="filtrer_tds vacborder">&nbsp;</td>
+                            <td class="filtrer_tds vacborder">
+                                Animals
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                229
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                40
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                65
+                            </td>
+                            <td class="filtrer_tds vacborder">
+                                
+                            </td>
+                            <td class="filtrer_tds vacborder last">
+                                
+                            </td>
+                            </tr>
+                                                                                                                        <tr>
+                    <td colspan="5" class="filtrer_ths ta_left">Total</td>
+                    <td class="filtrer_ths ta_left">Species</td>
+                     <td class="filtrer_ths ta_left">Susceptible</td>
+                     <td class="filtrer_ths ta_left">Cases</td>
+                     <td class="filtrer_ths ta_left">Deaths</td>
+                     <td class="filtrer_ths ta_left">Destroyed</td>
+                     <td class="filtrer_ths ta_left last">Slaughtered</td>
+                     </tr>
+                                        <tr>
+                        <td colspan="5" class="filtrer_tds vacborder">&nbsp;</td>
+                        <td class="filtrer_tds vacborder">Swine</td>
+                        <td class="filtrer_tds vacborder">229</td>
+                        <td class="filtrer_tds vacborder">40</td>
+                        <td class="filtrer_tds vacborder">65</td>
+                        <td class="filtrer_tds vacborder"></td>
+                        <td class="filtrer_tds vacborder last"></td>
+                        
+                    </tr>
+                                        <tr class="outbreak_total">
+                        <td colspan='5' class="filtrer_ths ta_left">
+                            Total animals affected
+                        </td><td class="filtrer_tds vacborder">All</td>
+                                                    <td class="filtrer_tds vacborder">229</td>
+                                                    <td class="filtrer_tds vacborder">40</td>
+                                                    <td class="filtrer_tds vacborder">65</td>
+                                                    <td class="filtrer_tds vacborder"></td>
+                                                    <td class="filtrer_tds vacborder last"></td>
+                                            </tr>
+                    </table><br><br>
+                                      </td>
+                  </tr>
+                </tbody></table>
+                
+                </form>
+			     <form name="listoutbreak" method="post" action="/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/listoutbreak">
+			         <input type="hidden" name="reportid" value=""></input>
+			         <input type="hidden" name="summary_country" value=""></input>
+			     </form>
+			    <div class="noFloat"/>
+			</div>
+</div></div></div>    </div>
+	
+    </div>
+	<div class="Footer">
+	<div class="Top"></div>
+	<div class="Mid">
+        <div class="FooterTxt"> </div>
+        <a class="OieLogo" href="#"></a>
+		<div class="FooterTxt">World Animal Health Information Database (WAHID) – Version 1<br />
+		  <a href="http://www.oie.int/">Copyright &copy; World Organisation for Animal Health (OIE)</a><br />
+		  Release date: 30 December 2013 August 2012</div>
+		<div class="noFloat"></div>
+	</div>
+	<div class="Botoom"></div>
+</div>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-27210936-1']);
+  _gaq.push(['_setDomainName', '.oie.int']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</div>
+<script type="text/javascript">
+    setIframe(1);
+    setIframe(5);
+</script>
+</body>
+</html>
+

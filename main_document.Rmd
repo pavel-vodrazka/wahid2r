@@ -1,0 +1,108 @@
+---
+title: "Making the african swine fever (ASF) outbreaks in Europe from the data 
+scrapped from the OIE WAHID website"
+author: "Pavel Vodrážka"
+date: "Thursday, January 15, 2015"
+output:
+        html_document:
+                toc: true
+---
+
+### Reason
+
+The maps that can be obtained from the [OIE WAHID website](http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Diseaseoutbreakmaps) are not aesthetically 
+pleasing, and can be downloaded only as raster images that are not suitable for 
+including in print quality publications. Other sources of data and maps of ASF 
+outbreaks were not found.
+
+### Obtaining the data
+
+There is no option to dowload the data or no public data API on the OIE WAHID 
+website. Data needs to be scraped from the ["Immediate notifications and 
+Follow-Ups"](http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary) part of the site.
+
+We go all the way from getting the webpages of summaries of immediate 
+notifications and follow-ups for african swine fever for all the years (2005 -- 
+2014), extracting the links of the full country reports, getting the full 
+reports (immediate notifications), extracting the links of the follow-up 
+reports, getting the follow-up reports, and getting and processing data from the 
+dowloaded reports.
+
+The starting page is http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary. 
+We first need be able to programmatically fill the form on the page and download 
+the resulting summaries. We use functions from the R package "RHTMLForms" to 
+accomplish this part of the task.
+
+```{r}
+library(RHTMLForms)
+url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
+forms <- getHTMLFormDescription(url) # RHTMLForms
+```
+
+The `forms` object now contains the description of the forms on the webpage. 
+
+```{r}
+names(forms)
+```
+
+There are four forms on the page; after inspecting the page source we know that 
+we are interested in the ``r names(forms)[2]``. We now create a function that 
+will serve to submit the form and retrieve the resulting webpage.
+
+```{r}
+summaries_fun <- createFunction(forms[["diseaseform"]]) # RHTMLForms
+```
+
+By inspecting the page source and the forms we figure out the necessary 
+parameters to the `fun` function: `disease_id_terrestrial` (`= "12"` for african 
+swine fever), and `year`. Now we download the yearly summaries of immediate 
+notifications and follow-ups to a directory "summaries" that we create in the 
+work directory.
+
+```{r}
+years <- 2005:2014
+disease = "12"
+
+years_char <- as.character(years)
+names(years) <- years_char
+summaries_dir <- "summaries"
+dir.create(summaries_dir)
+summaries_files <- file.path(summaries_dir,
+                             paste0(years_char,
+                                    ".html")
+                             )
+summaries <- sapply(years,
+                    function(x) {
+                            summaries_fun(year = x,
+                                          disease_id_terrestrial = disease)
+                            },
+                    simplify = FALSE)
+junk <- mapply(write,
+               x = summaries,
+               file = summaries_files)
+write(format(Sys.time()),
+      file = file.path(summaries_dir,
+                       "date_downloaded.txt")
+      )
+```
+
+The summaries html is also stored in the `summaries` object. We will work with 
+this from now on, the saved html files serve for documentation purposes. Now we 
+parse the html.
+
+```{r}
+library(XML)
+doc <- xmlRoot(htmlTreeParse(summaries[[2]], useInternalNodes = TRUE))
+country_list <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder outbreak_country']/text()") # needs to remove trailing chars
+temp_status_list <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/text()")
+status_list <- temp_status_list[seq(1, length(temp_resolved_list), by = 8)]
+temp_date_list <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/text()")
+date_list <- temp_date_list[seq(2, length(temp_date_list), by = 8)]
+outbreak_links_char <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/a[@href='javascript:;']/@onclick")
+event_summary_links_char <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/a[contains(@href, 'viewsummary')]/@href")
+full_report_links_char <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/a[contains(@href, 'page_refer=MapFullEventReport')]/@href")
+# 
+test <- getHTMLLinks(summaries[[1]])
+test1 <- readHTMLTable(test)
+test2 <- test1[[3]]
+```
