@@ -1,11 +1,9 @@
 ---
-title: "Making the african swine fever (ASF) outbreaks in Europe from the data 
-scrapped from the OIE WAHID website"
+title: "Making a map of African Swine Fever (ASF) outbreaks in Europe  
+from the data scrapped from the OIE WAHID website"
 author: "Pavel Vodrážka"
 date: "Thursday, January 15, 2015"
-output:
-        html_document:
-                toc: true
+output: html_document
 ---
 
 ### Reason
@@ -28,81 +26,163 @@ reports (immediate notifications), extracting the links of the follow-up
 reports, getting the follow-up reports, and getting and processing data from the 
 dowloaded reports.
 
-The starting page is http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary. 
-We first need be able to programmatically fill the form on the page and download 
-the resulting summaries. We use functions from the R package "RHTMLForms" to 
-accomplish this part of the task.
-
-```{r}
-library(RHTMLForms)
-url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
-forms <- getHTMLFormDescription(url) # RHTMLForms
+The starting page is http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary. The following code refers to the version of the web denoted in the 
+footer:
 ```
-
-The `forms` object now contains the description of the forms on the webpage. 
-
-```{r}
-names(forms)
++--------------------------------------------------------------+
+| World Animal Health Information Database (WAHID) – Version 1 |
+| Copyright © World Organisation for Animal Health (OIE)       |
+| Release date: 30 December 2013 August 2012                   |
++--------------------------------------------------------------+
 ```
+We first need to be able to programmatically fill the form on the page and download 
+the resulting summaries. We prepare a function `getDiseaseSummaries` using some 
+functions from the "RHTMLForms" package to accomplish this part of the task.
 
 There are four forms on the page; after inspecting the page source we know that 
-we are interested in the ``r names(forms)[2]``. We now create a function that 
-will serve to submit the form and retrieve the resulting webpage.
+we are interested in the `diseaseform`. Our function `getDiseaseSummaries` 
+contains a function `summaries_fun` that is created programmatically from the 
+page source code and that will serve to submit that form and retrieve the 
+resulting webpages.
 
-```{r}
-summaries_fun <- createFunction(forms[["diseaseform"]]) # RHTMLForms
+```{r cache=TRUE}
+library(RHTMLForms)
+library(RCurl)
+
+getDiseaseSummaries <- function(disease, years) {
+        
+        url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
+        forms <- getHTMLFormDescription(url) # RHTMLForms
+        
+        summaries_fun <- createFunction(forms[["diseaseform"]]) # RHTMLForms
+        
+        years_char <- as.character(years)
+        names(years) <- years_char
+        # summaries_dir <- "summaries"
+        # dir.create(summaries_dir)
+        # summaries_files <- file.path(summaries_dir,
+        #                              paste0(years_char,
+        #                                     ".html")
+        #                              )
+        
+        summaries <- sapply(years,
+                            function(x) {
+                                    summaries_fun(year = x,
+                                                  disease_id_terrestrial = disease)
+                                    },
+                            simplify = FALSE)
+        
+        # junk <- mapply(write,
+        #                x = summaries,
+        #                file = summaries_files)
+        #         
+        # write(format(Sys.time()),
+        #       file = file.path(summaries_dir,
+        #                        "date_downloaded.txt")
+        #       )
+        #
+        return(summaries)
+        }
 ```
 
 By inspecting the page source and the forms we figure out the necessary 
-parameters to the `fun` function: `disease_id_terrestrial` (`= "12"` for african 
-swine fever), and `year`. Now we download the yearly summaries of immediate 
-notifications and follow-ups to a directory "summaries" that we create in the 
-work directory.
+parameters to the `getDiseaseSummaries` function: `disease_id_terrestrial` 
+(`= "12"` for ASF), and `year`. Now we obtain the yearly summaries of immediate 
+notifications and follow-ups as a `summaries` object -- a list containing the raw 
+html of pages returned by repeatedly submitting the form with given disease selected 
+for the range of years speficied.
 
-```{r}
+```{r cache=TRUE}
 years <- 2005:2014
 disease = "12"
 
-years_char <- as.character(years)
-names(years) <- years_char
-summaries_dir <- "summaries"
-dir.create(summaries_dir)
-summaries_files <- file.path(summaries_dir,
-                             paste0(years_char,
-                                    ".html")
-                             )
-summaries <- sapply(years,
-                    function(x) {
-                            summaries_fun(year = x,
-                                          disease_id_terrestrial = disease)
-                            },
-                    simplify = FALSE)
-junk <- mapply(write,
-               x = summaries,
-               file = summaries_files)
-write(format(Sys.time()),
-      file = file.path(summaries_dir,
-                       "date_downloaded.txt")
-      )
+summaries <- getDiseaseSummaries(disease = disease, years = years)
 ```
 
-The summaries html is also stored in the `summaries` object. We will work with 
-this from now on, the saved html files serve for documentation purposes. Now we 
-parse the html.
+Now we will parse the html of the pages stored in the `summaries` object.
 
-```{r}
+[//]: # (Finish here)
+
+```{r cache=TRUE}
 library(XML)
-doc <- xmlRoot(htmlTreeParse(summaries[[2]], useInternalNodes = TRUE))
-country_list <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder outbreak_country']/text()") # needs to remove trailing chars
-temp_status_list <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/text()")
-status_list <- temp_status_list[seq(1, length(temp_resolved_list), by = 8)]
-temp_date_list <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/text()")
-date_list <- temp_date_list[seq(2, length(temp_date_list), by = 8)]
-outbreak_links_char <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/a[@href='javascript:;']/@onclick")
-event_summary_links_char <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/a[contains(@href, 'viewsummary')]/@href")
-full_report_links_char <- xpathSApply(doc, "//table[@class='Table27']//tr[@class='outbreakdetails']//td[@class='filtrer_tds vacborder']/a[contains(@href, 'page_refer=MapFullEventReport')]/@href")
-# 
-test <- getHTMLLinks(summaries[[1]])
-test1 <- readHTMLTable(test)
-test2 <- test1[[3]]
+
+parseSummary <- function(summary) {
+        
+        doc <- xmlRoot(htmlTreeParse(summary, useInternalNodes = TRUE))
+        
+        get_node <- function(doc, XPath) {
+                gsub("^\\s*",
+                     "",
+                     gsub("\\s*$",
+                          "",
+                          xpathSApply(doc, XPath, xmlValue)
+                          )
+                     )
+                }
+        
+        country <- get_node(doc,
+                            "//table[@class='Table27']
+                            //tr[@class='outbreakdetails']
+                            //td[@class='filtrer_tds vacborder outbreak_country']
+                            |
+                            //table[@class='Table27']
+                            //tr[@class='outbreakdetails']
+                            //td[@class='filtrer_tds outbreak_country no_topborder']")
+        while(length(which(country == "Â")) > 0) {
+                country[which(country == "Â")] <- country[which(country == "Â") - 1]
+                }        
+        temp_statuses_dates <- get_node(doc,
+                                        "//table[@class='Table27']
+                                        //tr[@class='outbreakdetails']
+                                        //td[@class='filtrer_tds vacborder' and @color='red']")
+        status <- strsplit(temp_statuses_dates, "\\d{2}/\\d{2}/\\d{4}")
+        date <- sapply(strsplit(temp_statuses_dates, "[^[:digit:]/]*"), paste, collapse = "")
+        outbreaks_link_parameters <- strsplit(gsub("outbreaklist\\('(\\w{3})',(\\d*)\\);",
+                                                   "\\2|\\1",
+                                                   xpathSApply(doc,
+                                                               "//table[@class='Table27']
+                                                               //tr[@class='outbreakdetails']
+                                                               //td[@class='filtrer_tds vacborder']
+                                                               /a[@href='javascript:;']/@onclick")
+                                                   ),
+                                              "|",
+                                              fixed = TRUE)
+        outbreaks_link_parameters_df <- t(sapply(outbreaks_link_parameters, function(x) list(reportid = x[1], summary_country = x[2])))
+        rownames(outbreaks_link_parameters_df) <- NULL
+        event_summary_link <- paste0("http://www.oie.int",
+                                     xpathSApply(doc,
+                                                 "//table[@class='Table27']
+                                                 //tr[@class='outbreakdetails']
+                                                 //td[@class='filtrer_tds vacborder']
+                                                 /a[contains(@href, 'viewsummary')]
+                                                 /@href")
+                                     )
+        full_report_link <- gsub("javascript: open_report\\(\"",
+                                 "http://www.oie.int",
+                                 gsub("\",",
+                                      "reportid=",
+                                      gsub("\\);",
+                                           "",
+                                           xpathSApply(doc,
+                                                       "//table[@class='Table27']
+                                                       //tr[@class='outbreakdetails']
+                                                       //td[@class='filtrer_tds vacborder']
+                                                       /a[contains(@href, 'page_refer=MapFullEventReport')]
+                                                       /@href")
+                                           )
+                                      )
+                                 )
+        names(full_report_link) <- NULL
+        
+        return(cbind(country,
+                     status,
+                     date,
+                     outbreaks_link_parameters_df,
+                     event_summary_link,
+                     full_report_link)
+               )
+        }
+
+test <- lapply(summaries, parseSummary)
+
 ```
