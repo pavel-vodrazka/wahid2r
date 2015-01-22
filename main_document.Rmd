@@ -1,9 +1,10 @@
 ---
-title: "Making a map of African Swine Fever (ASF) outbreaks in Europe  
-from the data scrapped from the OIE WAHID website"
+title: Making a map of African Swine Fever (ASF) outbreaks in Europe from the data
+  scrapped from the OIE WAHID website
 author: "Pavel Vodrážka"
 date: "Thursday, January 15, 2015"
-output: html_document
+output:
+  html_document: default
 ---
 
 ### Reason
@@ -48,11 +49,19 @@ resulting webpages.
 ```{r cache=TRUE}
 library(RHTMLForms)
 library(RCurl)
-
+library(stringi)
+library(XML)
+library(rvest)
+library(httr)
+```
+```{r}
+url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
+#get encoding
+# do it via POST from httr
+forms <- getHTMLFormDescription(url) # RHTMLForms
+```
+```{r}
 getDiseaseSummaries <- function(disease, years) {
-        
-        url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
-        forms <- getHTMLFormDescription(url) # RHTMLForms
         
         summaries_fun <- createFunction(forms[["diseaseform"]]) # RHTMLForms
         
@@ -68,9 +77,11 @@ getDiseaseSummaries <- function(disease, years) {
         summaries <- sapply(years,
                             function(x) {
                                     summaries_fun(year = x,
-                                                  disease_id_terrestrial = disease)
+                                                  disease_id_terrestrial = disease
+                                                  )
                                     },
-                            simplify = FALSE)
+                            simplify = FALSE
+                            )
         
         # junk <- mapply(write,
         #                x = summaries,
@@ -93,7 +104,9 @@ html of pages returned by repeatedly submitting the form with given disease sele
 for the range of years speficied.
 
 ```{r cache=TRUE}
-years <- 2005:2014
+
+# list the diseases and years available
+years <- 2014
 disease = "12"
 
 summaries <- getDiseaseSummaries(disease = disease, years = years)
@@ -104,85 +117,300 @@ Now we will parse the html of the pages stored in the `summaries` object.
 [//]: # (Finish here)
 
 ```{r cache=TRUE}
-library(XML)
-
 parseSummary <- function(summary) {
         
         doc <- xmlRoot(htmlTreeParse(summary, useInternalNodes = TRUE))
         
-        get_node <- function(doc, XPath) {
-                gsub("^\\s*",
-                     "",
-                     gsub("\\s*$",
-                          "",
-                          xpathSApply(doc, XPath, xmlValue)
-                          )
-                     )
+        country <- doc %>%
+                html_nodes(".outbreakdetails .outbreak_country") %>%
+                html_text(trim = TRUE) %>%
+                gsub("[^A-Za-z ']", "", .)
+        while(length((empty_countries <- which(nchar(country) == 0))) > 0) {
+                country[empty_countries] <- country[empty_countries - 1]
                 }
         
-        country <- get_node(doc,
-                            "//table[@class='Table27']
-                            //tr[@class='outbreakdetails']
-                            //td[@class='filtrer_tds vacborder outbreak_country']
-                            |
-                            //table[@class='Table27']
-                            //tr[@class='outbreakdetails']
-                            //td[@class='filtrer_tds outbreak_country no_topborder']")
-        while(length(which(country == "Â")) > 0) {
-                country[which(country == "Â")] <- country[which(country == "Â") - 1]
-                }        
-        temp_statuses_dates <- get_node(doc,
-                                        "//table[@class='Table27']
-                                        //tr[@class='outbreakdetails']
-                                        //td[@class='filtrer_tds vacborder' and @color='red']")
-        status <- strsplit(temp_statuses_dates, "\\d{2}/\\d{2}/\\d{4}")
-        date <- sapply(strsplit(temp_statuses_dates, "[^[:digit:]/]*"), paste, collapse = "")
-        outbreaks_link_parameters <- strsplit(gsub("outbreaklist\\('(\\w{3})',(\\d*)\\);",
-                                                   "\\2|\\1",
-                                                   xpathSApply(doc,
-                                                               "//table[@class='Table27']
-                                                               //tr[@class='outbreakdetails']
-                                                               //td[@class='filtrer_tds vacborder']
-                                                               /a[@href='javascript:;']/@onclick")
-                                                   ),
-                                              "|",
-                                              fixed = TRUE)
-        outbreaks_link_parameters_df <- t(sapply(outbreaks_link_parameters, function(x) list(reportid = x[1], summary_country = x[2])))
-        rownames(outbreaks_link_parameters_df) <- NULL
-        event_summary_link <- paste0("http://www.oie.int",
-                                     xpathSApply(doc,
-                                                 "//table[@class='Table27']
-                                                 //tr[@class='outbreakdetails']
-                                                 //td[@class='filtrer_tds vacborder']
-                                                 /a[contains(@href, 'viewsummary')]
-                                                 /@href")
-                                     )
-        full_report_link <- gsub("javascript: open_report\\(\"",
-                                 "http://www.oie.int",
-                                 gsub("\",",
-                                      "reportid=",
-                                      gsub("\\);",
-                                           "",
-                                           xpathSApply(doc,
-                                                       "//table[@class='Table27']
-                                                       //tr[@class='outbreakdetails']
-                                                       //td[@class='filtrer_tds vacborder']
-                                                       /a[contains(@href, 'page_refer=MapFullEventReport')]
-                                                       /@href")
-                                           )
-                                      )
-                                 )
-        names(full_report_link) <- NULL
+        status <- doc %>%
+                html_nodes(".outbreakdetails :nth-child(2)") %>%
+                html_text(trim = TRUE) %>%
+                gsub("[0-9/]", "", .)
         
-        return(cbind(country,
-                     status,
-                     date,
-                     outbreaks_link_parameters_df,
-                     event_summary_link,
-                     full_report_link)
+        date <- doc %>%
+                html_nodes(".outbreakdetails :nth-child(2)") %>%
+                html_text(trim = TRUE) %>%
+                gsub("[A-Za-z ]", "", .) %>%
+                as.Date("%d/%m/%Y")
+        
+        summary_country <- doc %>%
+                html_nodes("#diseaseform :nth-child(3) a") %>%
+                html_attr("onclick") %>%
+                gsub("outbreaklist\\('|',[0-9]*);", "", .)
+        
+        reportid <- doc %>%
+                html_nodes("#diseaseform :nth-child(3) a") %>%
+                html_attr("onclick") %>%
+                gsub("outbreaklist\\('[A-Z]*',|);", "", .)
+        
+        event_summary_link <- doc %>%
+                html_nodes(".vacborder:nth-child(4) a") %>%
+                html_attr("href") %>%
+                paste0("http://www.oie.int", .)
+        
+        full_report_link <- doc %>%
+                html_nodes(".vacborder:nth-child(5) a") %>%
+                html_attr("href") %>%
+                gsub("javascript: open_report\\(\"", "http://www.oie.int", .) %>%
+                gsub("\",", "reportid=", .) %>%
+                gsub("\\);", "", .)
+                
+        return(data.frame(country,
+                          status,
+                          date,
+                          summary_country,
+                          reportid,
+                          event_summary_link,
+                          full_report_link,
+                          stringsAsFactors = FALSE
+                          )
+               )
+        }
+```
+```{r}
+summaries_df_l <- summaries %>%
+        lapply(parseSummary)
+
+for(i in 1:length(summaries_df_l)) {
+        summaries_df_l[[i]] <- cbind(year = years[i], summaries_df_l[[i]])
+}
+        
+summaries_df <- do.call("rbind", summaries_df_l)
+```
+```{r}
+getSummariesOfOutbreaks <- function(year_reportid_summary_country) {
+        # refactor year_reportid_summary_country
+        
+        year <- year_reportid_summary_country["year"]
+        reportid <- year_reportid_summary_country["reportid"]
+        summary_country <- year_reportid_summary_country["summary_country"]
+        
+        resp <- POST(url = paste0(url, "/listoutbreak"),
+                     body = paste0("reportid=",
+                                   reportid,
+                                   "&summary_country=",
+                                   summary_country
+                                   ),
+                     content_type("application/x-www-form-urlencoded"),
+                     add_headers(Referer = "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary?reportid=")
+                     ) # httr
+        return(list(year = year,
+                          reportid = reportid,
+                          summary_country = summary_country,
+                          html = content(resp, as = "text")
+                          )
+               )
+        }
+```
+```{r}
+outbreak_summaries <- apply(summaries_df[, c("year", "reportid", "summary_country")], 1, getSummariesOfOutbreaks)
+```
+```{r}
+parseSummaryOfOubreaks <- function(summary_of_outbreaks_list) {
+        
+        year <- summary_of_outbreaks_list[["year"]]
+        html <- summary_of_outbreaks_list[["html"]]
+        
+        doc <- xmlRoot(htmlTreeParse(html, useInternalNodes = TRUE))
+        
+        outbreak_country <- doc %>%
+                html_nodes(".vacborder:nth-child(1) a") %>%
+                html_attr("href") %>%
+                gsub("javascript: outbreak_report\\(\\\"|\\\",[0-9]*\\);", "", .)
+        
+        outbreak_report <- doc %>%
+                html_nodes(".vacborder:nth-child(1) a") %>%
+                html_attr("href") %>%
+                gsub("javascript: outbreak_report\\(\\\"[A-Z]*\\\",|\\);", "", .)
+        
+        full_report_link <- doc %>%
+                html_nodes(".vacborder:nth-child(2) a") %>%
+                html_attr("href") %>%
+                gsub("javascript: open_report\\(\"", "http://www.oie.int", .) %>%
+                gsub("\",", "reportid=", .) %>%
+                gsub("\\);", "", .)
+        
+        loc1 <- doc %>%
+                html_nodes(".vacborder:nth-child(3)") %>%
+                html_text
+        
+        loc2 <- doc %>%
+                html_nodes(".vacborder:nth-child(4)") %>%
+                html_text
+        
+        loc3 <- doc %>%
+                html_nodes(".vacborder:nth-child(5)") %>%
+                html_text
+        
+        epi_unit <- doc %>%
+                html_nodes(".vacborder:nth-child(6)") %>%
+                html_text
+        
+        start_date <- doc %>%
+                html_nodes(".vacborder:nth-child(7)") %>%
+                html_text %>%
+                as.Date("%d/%m/%Y")
+        
+        status <- doc %>%
+                html_nodes(".vacborder.last") %>%
+                html_text
+        
+        return(data.frame(year,
+                          outbreak_country,
+                          outbreak_report,
+                          full_report_link,
+                          loc1,
+                          loc2,
+                          loc3,
+                          epi_unit,
+                          start_date,
+                          status,
+                          stringsAsFactors = FALSE
+                          )
                )
         }
 
-test <- lapply(summaries, parseSummary)
+```
+```{r}
+outbreak_summaries_df_l <- outbreak_summaries %>%
+        lapply(parseSummaryOfOubreaks)
+
+outbreak_summaries_df <- do.call("rbind", outbreak_summaries_df_l)
 
 ```
+```{r}
+getOutbreakDetails <- function(outbreak_summary) {
+        
+        year <- outbreak_summary["year"]
+        reportid <- outbreak_summary["outbreak_report"]
+        summary_country <- outbreak_summary["outbreak_country"]
+        backreportid <- outbreak_summary["full_report_link"] %>%
+                gsub("http://www.oie.int/wahis_2/public/wahid.php/Reviewreport/Review\\?page_refer=MapFullEventReport&reportid=",
+                     "",
+                     .
+                     )
+        
+        resp <- POST(url = paste0(url, "/outbreakreport"),
+                     body = paste0("reportid=",
+                                   reportid,
+                                   "&summary_country=",
+                                   summary_country,
+                                   "&backreportid=",
+                                   backreportid
+                                   ),
+                     content_type("application/x-www-form-urlencoded"),
+                     add_headers(Referer = "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/listoutbreak")
+                     ) # httr
+        return(list(year = year,
+                    reportid = reportid,
+                    summary_country = summary_country,
+                    html = content(resp, as = "text")
+                    )
+               )
+        }
+```
+```{r}
+outbreak_reports <- apply(outbreak_summaries_df, 1, getOutbreakDetails)
+```
+```{r}
+parseOutbreakReports <- function(outbreak_reports_list) {
+        
+        outbreak_country <- outbreak_reports_list[["summary_country"]]
+        reportid <- outbreak_reports_list[["reportid"]]
+        html <- outbreak_reports_list[["html"]]
+        
+        doc <- xmlRoot(htmlTreeParse(html,
+                                     useInternalNodes = TRUE,
+                                     encoding = "ISO-8859-1")
+                       )
+        
+        data <- doc %>%
+                html_nodes(".vacborder") %>%
+                html_text
+        
+        start_date <- data[1] %>% as.Date("%d/%m/%Y")
+        status <- data[2]
+        resolution_date <- data[3] %>% as.Date("%d/%m/%Y")
+        loc1 <- data[4]
+        loc2 <- data[5]
+        loc3 <- data[6]
+        loc4 <- data[8]
+        epi_unit <- data[7]
+        lat <- data[9] %>% as.numeric
+        lon <- data[10] %>% as.numeric
+        description <- data[11]
+        at_risk_total <- data[length(data) - 3] %>% as.numeric
+        cases_total <- data[length(data) - 2] %>% as.numeric
+        deaths_total <- data[length(data) - 1] %>% as.numeric
+        destroyed_total <- data[length(data)] %>% as.numeric
+        multi_species <- length(data) > 20
+        species <- paste0(data[seq(12, length(data) - 4, 5)], collapse = ", ")
+        species_breakdown <- data[12:(length(data) - 4)] %>%
+                matrix(ncol = 5,
+                       byrow = TRUE,
+                       dimnames = list(NULL,
+                                       c("species",
+                                         "at_risk",
+                                         "cases",
+                                         "deaths",
+                                         "destroyed"
+                                         )
+                                       )
+                       ) %>%
+                data.frame(stringsAsFactors = FALSE)
+        species_breakdown[, 2:5] <- as.numeric(
+                as.character(unlist(species_breakdown[, 2:5])))
+                
+        return(data.frame(outbreak_country,
+                          reportid,
+                          start_date,
+                          status,
+                          resolution_date,
+                          loc1,
+                          loc2,
+                          loc3,
+                          loc4,
+                          epi_unit,
+                          lat,
+                          lon,
+                          description,
+                          at_risk_total,
+                          cases_total,
+                          deaths_total,
+                          destroyed_total,
+                          multi_species,
+                          species,
+                          species_breakdown,
+                          stringsAsFactors = FALSE,
+                          row.names = NULL
+                          )
+               )
+        
+        }
+```
+```{r}
+outbreak_reports_df_l <- lapply(outbreak_reports, parseOutbreakReports)
+
+outbreak_reports_df <- do.call("rbind", outbreak_reports_df_l)
+
+write.csv(outbreak_reports_df,
+           file = paste0("outbreaks of disease ",
+                         disease,
+                         ", year ",
+                         paste0(unique(range(years)),
+                                collapse = "-"),
+                         ".csv"
+                         ),
+           na = ""
+           )
+```
+
+Cite packages!
+Encodings!
