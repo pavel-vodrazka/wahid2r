@@ -1,0 +1,6 @@
+.Rhistory
+.Rproj.user/
+.RData
+main_document_cache/
+*.csv
+processed_data/

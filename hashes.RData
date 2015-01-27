@@ -1,0 +1,9 @@
+structure(list(`disease form attributes` = "ad1a6c68b6af5058f261fc93e502e7b4", 
+    `diseaseform scripts` = "37e2044b660df3da725a3a1fb516059e", 
+    `diseaseform inputs` = "67186897611ed380f843ce36c79b5e91", 
+    `diseaseform selects' attributes` = "27220ec15bd4d8196276ae9be88e57fa", 
+    `outbreakreport form attributes` = "6d757b5a675630e39c18a3c2829d8641", 
+    `outbreakreport form inputs` = "37e2044b660df3da725a3a1fb516059e"), .Names = c("disease form attributes", 
+"diseaseform scripts", "diseaseform inputs", "diseaseform selects' attributes", 
+"outbreakreport form attributes", "outbreakreport form inputs"
+))
