@@ -37,10 +37,6 @@ footer:
 +--------------------------------------------------------------+
 ```
 ```{r loadPackages, cache=TRUE}
-# library(RHTMLForms)
-# library(RCurl) # dpendency of rvest and httr
-# library(stringi) # just for guessing encodings
-# library(XML) # parsing html
 library(rvest)
 library(httr)
 library(dplyr)
@@ -54,7 +50,7 @@ checkIfwebNotChanged <- function(hashFile = "hashes.RData") {
         val <- list()
         resp1 <- GET(url)
         stop_for_status(resp1)
-        doc1 <- html(resp1, encoding = "ISO-8859-1")
+        doc1 <- html(resp1, encoding = "UTF-8")
         val[["disease form attributes"]] <- doc1 %>%
                 html_nodes("#diseaseform") %>%
                 html_attrs %>%
@@ -71,7 +67,7 @@ checkIfwebNotChanged <- function(hashFile = "hashes.RData") {
                 digest(algo = "md5")
         resp2 <- GET(paste0(url, "/listoutbreak"))
         stop_for_status(resp2)
-        doc2 <- html(resp2, encoding = "ISO-8859-1")
+        doc2 <- html(resp2, encoding = "UTF-8")
         val[["outbreakreport form attributes"]] <- doc2 %>%
                 html_nodes("form[name='outbreakreport']") %>%
                 html_attrs %>%
@@ -111,10 +107,6 @@ we are interested in the `diseaseform`. Our function `getDiseaseSummaries`
 contains a function `summaries_fun` that is created programmatically from the 
 page source code and that will serve to submit that form and retrieve the 
 resulting webpages.
-```{r baseURL}
-# this can be removed or later changed to a package variable
-url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
-```
 
 ```{r function-getDiseaseFormValues, autodep=TRUE}
 getDiseaseFormValues <- function(disease = character(),
@@ -128,7 +120,7 @@ getDiseaseFormValues <- function(disease = character(),
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
         resp <- GET(url)
         stop_for_status(resp)
-        doc <- html(resp, encoding = "ISO-8859-1")
+        doc <- html(resp, encoding = "UTF-8")
         years_available <<- doc %>%
                 html_nodes("#diseaseform #year option") %>%
                 html_attr("value")
@@ -256,6 +248,13 @@ downloadSummaryOfImmediateNotificationsAndFollowUps <- function(diseaseID,
                            ),
              content_type("application/x-www-form-urlencoded"))
         stop_for_status(resp)
+        if(!exists("D1counter")) D1counter <<- 0
+        D1counter <<- D1counter + 1
+        if(D1counter %% 50 == 0) {
+                cat(D1counter, "\n")
+                } else {
+                        if(D1counter %% 10 == 0) cat("|") else cat(".")
+                }
         return(resp)
         }
 ```
@@ -272,7 +271,7 @@ parseSummaryOfImmediateNotificationsAndFollowUps <- function(response) {
                 grep("disease_type_hidden=", postfields),
                 grep("year=", postfields)
                 )) stop (paste0("The argument specified is not a summary of immediate notifications and follow-ups ", url))
-        doc <- html(response, encoding = "ISO-8859-1")
+        doc <- html(response, encoding = "UTF-8")
         country <- doc %>%
                 html_nodes(".outbreakdetails .outbreak_country") %>%
                 html_text(trim = TRUE) %>%
@@ -307,6 +306,13 @@ parseSummaryOfImmediateNotificationsAndFollowUps <- function(response) {
                 gsub("javascript: open_report\\(\"", "http://www.oie.int", .) %>%
                 gsub("\",", "reportid=", .) %>%
                 gsub("\\);", "", .)
+        if(!exists("P1counter")) P1counter <<- 0
+        P1counter <<- P1counter + 1
+        if(P1counter %% 50 == 0) {
+                cat(P1counter, "\n")
+                } else {
+                        if(P1counter %% 10 == 0) cat("|") else cat(".")
+                }
         return(data.frame(country,
                           status,
                           date,
@@ -329,7 +335,7 @@ getCountries <- function(printOnly = FALSE, setGlobalOnly = FALSE) {
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Countryinformation/Countryhome"
         resp <- GET(url)
         stop_for_status(resp)
-        doc <- html(resp, encoding = "ISO-8859-1")
+        doc <- html(resp, encoding = "UTF-8")
         country_code <- doc %>%
                 html_nodes("select#country6 option") %>%
                 html_attr("value")
@@ -390,7 +396,7 @@ getDiseaseSummaries <- function(formValues,
                 stop(paste0("The entered combination of diseaseID and diseaseType (\"",
                             diseaseID_Type,
                             "\") doesn't exist."))
-#         disease <<- formValues[formValues$disease_id_hidden == diseaseID, "label"]
+        #         disease <<- formValues[formValues$disease_id_hidden == diseaseID, "label"]
         if(!missing(years)) {
                 years <- as.numeric(years)
                 if(!all(as.character(years) %in% years_available)) {
@@ -435,24 +441,27 @@ getDiseaseSummaries <- function(formValues,
                                         }
                         } else {
                                 countries <- countries
-                        }
+                                }
                 
                 }
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
+        message(paste0("Downloading yearly summaries (", length(years), "):"))
         summaries <- sapply(years,
                             function(x) {
                                     downloadSummaryOfImmediateNotificationsAndFollowUps(year = x,
                                                                                         diseaseID = diseaseID,
                                                                                         diseaseType = diseaseType)
                                     },
-                            simplify = FALSE) %>%
-                lapply(parseSummaryOfImmediateNotificationsAndFollowUps)
+                            simplify = FALSE)
+        message(paste0("Parsing yearly summaries (", length(summaries), "):"))
+        summaries %<>% lapply(parseSummaryOfImmediateNotificationsAndFollowUps)
         for(i in 1:length(summaries)) {
                 summaries[[i]] <- cbind(year = years[i], summaries[[i]])
                 }
         summaries <- do.call("rbind", summaries)
         if(!missing(countries))
                 summaries %<>% filter(country %in% countries)
+        summaries %<>% distinct_("reportid")
         class(summaries) %<>% c(., "summary of immediate notifications and followups")
         return(summaries)
         }
@@ -465,8 +474,11 @@ html of pages returned by repeatedly submitting the form with given disease sele
 for the range of years speficied.
 
 ```{r getDiseaseSummaries, cache=TRUE, autodep=TRUE}
-summaries <- getDiseaseSummaries(formValues = form_values)
-write.csv2(summaries, file = "summaries.csv", fileEncoding = "ISO-8859-1")
+summaries <- getDiseaseSummaries(formValues = form_values,
+                                 years = 2014,
+                                 countries = c("Ukraine", "Poland", "Lithuania"))
+
+write.csv2(summaries, file = "summaries.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
 ```
 
 Now we will parse the html of the pages stored in the `summaries` object.
@@ -495,6 +507,13 @@ downloadSummaryOfOutbreaks <- function(year, reportID, summaryCountry) {
                      add_headers(Referer = "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary?reportid=")
                      )
         stop_for_status(resp)
+        if(!exists("D2counter")) D2counter <<- 0
+        D2counter <<- D2counter + 1
+        if(D2counter %% 50 == 0) {
+                cat(D2counter, "\n")
+                } else {
+                        if(D2counter %% 10 == 0) cat("|") else cat(".")
+                }
         return(list(year = year,
                     reportid = reportID,
                     summary_country = summaryCountry,
@@ -518,7 +537,7 @@ parseSummaryOfOubreaks <- function(nonParsedSummaryOfOutbreaks) {
                 grep("summary_country=", postfields)))
                 stop (paste0("The argument specified is not a non parsed summary of outbreaks ", url))
         year <- nonParsedSummaryOfOutbreaks[["year"]]
-        doc <- html(nonParsedSummaryOfOutbreaks[["resp"]], encoding = "ISO-8859-1")
+        doc <- html(nonParsedSummaryOfOutbreaks[["resp"]], encoding = "UTF-8")
         outbreak_country <- doc %>%
                 html_nodes(".vacborder:nth-child(1) a") %>%
                 html_attr("href") %>%
@@ -552,6 +571,13 @@ parseSummaryOfOubreaks <- function(nonParsedSummaryOfOutbreaks) {
         status <- doc %>%
                 html_nodes(".vacborder.last") %>%
                 html_text
+        if(!exists("P2counter")) P2counter <<- 0
+        P2counter <<- P2counter + 1
+        if(P2counter %% 50 == 0) {
+                cat(P2counter, "\n")
+                } else {
+                        if(P2counter %% 10 == 0) cat("|") else cat(".")
+                }
         return(data.frame(year,
                           outbreak_country,
                           outbreak_report,
@@ -579,12 +605,16 @@ getSummariesOfOutbreaks <- function(diseaseSummaries) {
         if(!web_not_changed)
                 warning("The OIE WAHID website has changed, the following may not work.",
                         immediate. = TRUE)
+        message(paste0("Downloading summaries of outbreaks (",
+                       nrow(diseaseSummaries),
+                       "):"))
         summaries <- apply(diseaseSummaries,
                            1,
                            function(x) downloadSummaryOfOutbreaks(x[["year"]],
                                                                x[["reportid"]],
-                                                               x[["summary_country"]])) %>%
-                lapply(parseSummaryOfOubreaks) %>%
+                                                               x[["summary_country"]]))
+        message(paste0("Parsing summaries of outbreaks (", length(summaries), "):"))
+        summaries %<>% lapply(parseSummaryOfOubreaks) %>%
                 do.call("rbind", .)
         class(summaries) %<>% c(., "summary of outbreaks")
         return(summaries)
@@ -594,7 +624,10 @@ getSummariesOfOutbreaks <- function(diseaseSummaries) {
 
 ```{r getSummariesOfOutbreaks, cache=TRUE, autodep=TRUE}
 summaries_of_outbreaks <- getSummariesOfOutbreaks(summaries)
-write.csv2(summaries_of_outbreaks, file = "summaries_of_outbreaks.csv", fileEncoding = "UTF-8")
+write.csv2(summaries_of_outbreaks, file = "summaries_of_outbreaks.csv",
+            row.names = FALSE,
+            na = "",
+            fileEncoding = "UTF-8")
 ```
 
 ```{r function-downloadOutbreakReport, cache=TRUE, autodep=TRUE}
@@ -625,6 +658,13 @@ downloadOutbreakReport <- function(year,
                      add_headers(Referer = "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/listoutbreak")
                      )
         stop_for_status(resp)
+        if(!exists("D3counter")) D3counter <<- 0
+        D3counter <<- D3counter + 1
+        if(D3counter %% 50 == 0) {
+                cat(D3counter, "\n")
+                } else {
+                        if(D3counter %% 10 == 0) cat("|") else cat(".")
+                }
         return(list(year = year,
                     reportid = outbreakReportID,
                     summary_country = outbreakCountry,
@@ -632,7 +672,7 @@ downloadOutbreakReport <- function(year,
         }
 ```
 
-```{r function-parseOutbreakReports, cache=TRUE, autodep=TRUE}
+```{r function-parseOutbreakReport, cache=TRUE, autodep=TRUE}
 parseOutbreakReport <- function(nonParsedOutbreakReport) {
         if(!all(c("year",
                   "summary_country",
@@ -651,7 +691,7 @@ parseOutbreakReport <- function(nonParsedOutbreakReport) {
         year <- nonParsedOutbreakReport[["year"]]
         outbreak_country <- nonParsedOutbreakReport[["summary_country"]]
         reportid <- nonParsedOutbreakReport[["reportid"]]
-        doc <- html(nonParsedOutbreakReport[["resp"]], encoding = "ISO-8859-1")
+        doc <- html(nonParsedOutbreakReport[["resp"]], encoding = "UTF-8")
         data <- doc %>%
                 html_nodes(".vacborder") %>%
                 html_text
@@ -706,9 +746,14 @@ parseOutbreakReport <- function(nonParsedOutbreakReport) {
                           species_breakdown,
                           stringsAsFactors = FALSE,
                           row.names = NULL)
-        write.csv2(ret, file = "ret.csv")
-        return(ret)
-        
+        if(!exists("P3counter")) P3counter <<- 0
+        P3counter <<- P3counter + 1
+        if(P3counter %% 50 == 0) {
+                cat(P3counter, "\n")
+                } else {
+                        if(P3counter %% 10 == 0) cat("|") else cat(".")
+                }
+        return(ret)        
         }
 ```
 
@@ -721,6 +766,9 @@ getOutbreakReports <- function(outbreakSummaries, writeCSV = FALSE) {
         if(!web_not_changed)
                 warning("The OIE WAHID website has changed, the following may not work.",
                         immediate. = TRUE)
+        message(paste0("Downloading outbreak reports (",
+                       nrow(outbreakSummaries),
+                       "):"))
         reports <- apply(outbreakSummaries,
                          1,
                          function(x) downloadOutbreakReport(x[["year"]],
@@ -728,21 +776,22 @@ getOutbreakReports <- function(outbreakSummaries, writeCSV = FALSE) {
                                                             x[["outbreak_country"]],
                                                             gsub("http://www.oie.int/wahis_2/public/wahid.php/Reviewreport/Review\\?page_refer=MapFullEventReport&reportid=",
                                                                  "",
-                                                                 x[["full_report_link"]]))) %>%
+                                                                 x[["full_report_link"]])))
+        message(paste0("Parsing outbreak reports(", length(reports), "):"))
+        reports %<>%
                 lapply(parseOutbreakReport) %>%
                 do.call("rbind", .)
         if(writeCSV) {
-                write.csv(reports,
+                write.table(reports,
                           file = paste0("outbreaks of ",
                                         disease,
                                         ", year ",
                                         paste0(unique(range(years)), collapse = "-"),
                                         ", countries",
                                         paste0(countries, collapse = ", "),
-                                        ".csv"
-                                        ),
-                          na = ""
-                          )
+                                        ".txt"),
+                          na = "",
+                          fileEncoding = "UTF-8")
                 return(NULL)
                 } else {
                         return(reports)
@@ -752,7 +801,32 @@ getOutbreakReports <- function(outbreakSummaries, writeCSV = FALSE) {
 
 ```{r getOutbreakReports, cache=TRUE, autodep=TRUE}
 outbreak_reports <- getOutbreakReports(summaries_of_outbreaks)
-write.csv2(outbreak_reports, file = "outbreak_reports.csv")
+write.csv2(outbreak_reports, file = "outbreak_reports.csv", row.names = FALSE,
+           na = "", fileEncoding = "UTF-8")
+```
+
+```{r examplePlot, cache=TRUE, autodep=TRUE}
+# library(plotGoogleMaps)
+# outbreak_reportsSPDF <- outbreak_reports
+# coordinates(outbreak_reportsSPDF) <- ~lon + lat
+# proj4string(outbreak_reportsSPDF) <- CRS("+proj=longlat +datum=WGS84")
+# ic <- iconlabels(outbreak_reportsSPDF$species, height = 5, icon = TRUE)
+# map <- plotGoogleMaps(outbreak_reportsSPDF,
+#                       file = "map.html",
+#                       zcol = "start_date",
+#                       mapTypeId = "TERRAIN",
+#                       legend = FALSE,
+#                       control = FALSE,
+#                       iconMarker = ic)
+
+# library(ggmap)
+# theme_set(theme_bw(16))
+# europe_map <- qmap("Ukraine", zoom = 5, source = "stamen")
+# europe_map +
+#         geom_point(aes(x = lon, y = lat, colour = start_date, size = cases_total),
+#                    data = outbreak_reports)
+# qmplot(lon, lat, data = outbreak_reports)
+
 ```
 
 Cite packages!

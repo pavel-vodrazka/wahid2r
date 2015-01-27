@@ -4,3 +4,4 @@
 main_document_cache/
 *.csv
 processed_data/
+Thumbs.db

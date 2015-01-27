@@ -72,31 +72,17 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 | Copyright © World Organisation for Animal Health (OIE)       |
 | Release date: 30 December 2013 August 2012                   |
 +--------------------------------------------------------------+</code></pre>
-<pre class="r"><code># library(RHTMLForms)
-# library(RCurl) # dpendency of rvest and httr
-# library(stringi) # just for guessing encodings
-# library(XML) # parsing html
-library(rvest)
+<pre class="r"><code>library(rvest)
 library(httr)
-library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: 'dplyr'
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(magrittr)
+library(dplyr)
+library(magrittr)
 library(digest)</code></pre>
 <pre class="r"><code>checkIfwebNotChanged &lt;- function(hashFile = &quot;hashes.RData&quot;) {
         url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary&quot;
         val &lt;- list()
         resp1 &lt;- GET(url)
         stop_for_status(resp1)
-        doc1 &lt;- html(resp1, encoding = &quot;ISO-8859-1&quot;)
+        doc1 &lt;- html(resp1, encoding = &quot;UTF-8&quot;)
         val[[&quot;disease form attributes&quot;]] &lt;- doc1 %&gt;%
                 html_nodes(&quot;#diseaseform&quot;) %&gt;%
                 html_attrs %&gt;%
@@ -113,7 +99,7 @@ library(digest)</code></pre>
                 digest(algo = &quot;md5&quot;)
         resp2 &lt;- GET(paste0(url, &quot;/listoutbreak&quot;))
         stop_for_status(resp2)
-        doc2 &lt;- html(resp2, encoding = &quot;ISO-8859-1&quot;)
+        doc2 &lt;- html(resp2, encoding = &quot;UTF-8&quot;)
         val[[&quot;outbreakreport form attributes&quot;]] &lt;- doc2 %&gt;%
                 html_nodes(&quot;form[name='outbreakreport']&quot;) %&gt;%
                 html_attrs %&gt;%
@@ -145,8 +131,6 @@ library(digest)</code></pre>
         }       </code></pre>
 <p>We first need to be able to programmatically fill the form on the page and download the resulting summaries. We prepare a function <code>getDiseaseSummaries</code> using some functions from the “RHTMLForms” package to accomplish this part of the task.</p>
 <p>There are four forms on the page; after inspecting the page source we know that we are interested in the <code>diseaseform</code>. Our function <code>getDiseaseSummaries</code> contains a function <code>summaries_fun</code> that is created programmatically from the page source code and that will serve to submit that form and retrieve the resulting webpages.</p>
-<pre class="r"><code># this can be removed or later changed to a package variable
-url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary&quot;</code></pre>
 <pre class="r"><code>getDiseaseFormValues &lt;- function(disease = character(),
                                  printOnly = FALSE,
                                  setGlobalOnly = FALSE) {
@@ -158,7 +142,7 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
         url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary&quot;
         resp &lt;- GET(url)
         stop_for_status(resp)
-        doc &lt;- html(resp, encoding = &quot;ISO-8859-1&quot;)
+        doc &lt;- html(resp, encoding = &quot;UTF-8&quot;)
         years_available &lt;&lt;- doc %&gt;%
                 html_nodes(&quot;#diseaseform #year option&quot;) %&gt;%
                 html_attr(&quot;value&quot;)
@@ -280,6 +264,13 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
                            ),
              content_type(&quot;application/x-www-form-urlencoded&quot;))
         stop_for_status(resp)
+        if(!exists(&quot;D1counter&quot;)) D1counter &lt;&lt;- 0
+        D1counter &lt;&lt;- D1counter + 1
+        if(D1counter %% 50 == 0) {
+                cat(D1counter, &quot;\n&quot;)
+                } else {
+                        if(D1counter %% 10 == 0) cat(&quot;|&quot;) else cat(&quot;.&quot;)
+                }
         return(resp)
         }</code></pre>
 <pre class="r"><code>parseSummaryOfImmediateNotificationsAndFollowUps &lt;- function(response) {
@@ -293,7 +284,7 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
                 grep(&quot;disease_type_hidden=&quot;, postfields),
                 grep(&quot;year=&quot;, postfields)
                 )) stop (paste0(&quot;The argument specified is not a summary of immediate notifications and follow-ups &quot;, url))
-        doc &lt;- html(response, encoding = &quot;ISO-8859-1&quot;)
+        doc &lt;- html(response, encoding = &quot;UTF-8&quot;)
         country &lt;- doc %&gt;%
                 html_nodes(&quot;.outbreakdetails .outbreak_country&quot;) %&gt;%
                 html_text(trim = TRUE) %&gt;%
@@ -328,6 +319,13 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
                 gsub(&quot;javascript: open_report\\(\&quot;&quot;, &quot;http://www.oie.int&quot;, .) %&gt;%
                 gsub(&quot;\&quot;,&quot;, &quot;reportid=&quot;, .) %&gt;%
                 gsub(&quot;\\);&quot;, &quot;&quot;, .)
+        if(!exists(&quot;P1counter&quot;)) P1counter &lt;&lt;- 0
+        P1counter &lt;&lt;- P1counter + 1
+        if(P1counter %% 50 == 0) {
+                cat(P1counter, &quot;\n&quot;)
+                } else {
+                        if(P1counter %% 10 == 0) cat(&quot;|&quot;) else cat(&quot;.&quot;)
+                }
         return(data.frame(country,
                           status,
                           date,
@@ -347,7 +345,7 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
         url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Countryinformation/Countryhome&quot;
         resp &lt;- GET(url)
         stop_for_status(resp)
-        doc &lt;- html(resp, encoding = &quot;ISO-8859-1&quot;)
+        doc &lt;- html(resp, encoding = &quot;UTF-8&quot;)
         country_code &lt;- doc %&gt;%
                 html_nodes(&quot;select#country6 option&quot;) %&gt;%
                 html_attr(&quot;value&quot;)
@@ -405,7 +403,7 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
                 stop(paste0(&quot;The entered combination of diseaseID and diseaseType (\&quot;&quot;,
                             diseaseID_Type,
                             &quot;\&quot;) doesn't exist.&quot;))
-#         disease &lt;&lt;- formValues[formValues$disease_id_hidden == diseaseID, &quot;label&quot;]
+        #         disease &lt;&lt;- formValues[formValues$disease_id_hidden == diseaseID, &quot;label&quot;]
         if(!missing(years)) {
                 years &lt;- as.numeric(years)
                 if(!all(as.character(years) %in% years_available)) {
@@ -450,31 +448,39 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
                                         }
                         } else {
                                 countries &lt;- countries
-                        }
+                                }
                 
                 }
         url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary&quot;
+        message(paste0(&quot;Downloading yearly summaries (&quot;, length(years), &quot;):&quot;))
         summaries &lt;- sapply(years,
                             function(x) {
                                     downloadSummaryOfImmediateNotificationsAndFollowUps(year = x,
                                                                                         diseaseID = diseaseID,
                                                                                         diseaseType = diseaseType)
                                     },
-                            simplify = FALSE) %&gt;%
-                lapply(parseSummaryOfImmediateNotificationsAndFollowUps)
+                            simplify = FALSE)
+        message(paste0(&quot;Parsing yearly summaries (&quot;, length(summaries), &quot;):&quot;))
+        summaries %&lt;&gt;% lapply(parseSummaryOfImmediateNotificationsAndFollowUps)
         for(i in 1:length(summaries)) {
                 summaries[[i]] &lt;- cbind(year = years[i], summaries[[i]])
                 }
         summaries &lt;- do.call(&quot;rbind&quot;, summaries)
         if(!missing(countries))
                 summaries %&lt;&gt;% filter(country %in% countries)
+        summaries %&lt;&gt;% distinct_(&quot;reportid&quot;)
         class(summaries) %&lt;&gt;% c(., &quot;summary of immediate notifications and followups&quot;)
         return(summaries)
         }</code></pre>
 <p>By inspecting the page source and the forms we figure out the necessary parameters to the <code>getDiseaseSummaries</code> function: <code>disease_id_terrestrial</code> (<code>= &quot;12&quot;</code> for ASF), and <code>year</code>. Now we obtain the yearly summaries of immediate notifications and follow-ups as a <code>summaries</code> object – a list containing the raw html of pages returned by repeatedly submitting the form with given disease selected for the range of years speficied.</p>
-<pre class="r"><code>summaries &lt;- getDiseaseSummaries(formValues = form_values)</code></pre>
-<pre><code>## Year(s) not specified, using the whole range available (2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015).</code></pre>
-<pre class="r"><code>write.csv2(summaries, file = &quot;summaries.csv&quot;, fileEncoding = &quot;ISO-8859-1&quot;)</code></pre>
+<pre class="r"><code>summaries &lt;- getDiseaseSummaries(formValues = form_values,
+                                 years = 2014,
+                                 countries = c(&quot;Ukraine&quot;, &quot;Poland&quot;, &quot;Lithuania&quot;))</code></pre>
+<pre><code>## Downloading yearly summaries (1):</code></pre>
+<pre><code>## .</code></pre>
+<pre><code>## Parsing yearly summaries (1):</code></pre>
+<pre><code>## .</code></pre>
+<pre class="r"><code>write.csv2(summaries, file = &quot;summaries.csv&quot;, row.names = FALSE, na = &quot;&quot;, fileEncoding = &quot;UTF-8&quot;)</code></pre>
 <p>Now we will parse the html of the pages stored in the <code>summaries</code> object.</p>
 <pre class="r"><code>downloadSummaryOfOutbreaks &lt;- function(year, reportID, summaryCountry) {
         if(any(missing(year),
@@ -497,6 +503,13 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
                      add_headers(Referer = &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary?reportid=&quot;)
                      )
         stop_for_status(resp)
+        if(!exists(&quot;D2counter&quot;)) D2counter &lt;&lt;- 0
+        D2counter &lt;&lt;- D2counter + 1
+        if(D2counter %% 50 == 0) {
+                cat(D2counter, &quot;\n&quot;)
+                } else {
+                        if(D2counter %% 10 == 0) cat(&quot;|&quot;) else cat(&quot;.&quot;)
+                }
         return(list(year = year,
                     reportid = reportID,
                     summary_country = summaryCountry,
@@ -517,7 +530,7 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
                 grep(&quot;summary_country=&quot;, postfields)))
                 stop (paste0(&quot;The argument specified is not a non parsed summary of outbreaks &quot;, url))
         year &lt;- nonParsedSummaryOfOutbreaks[[&quot;year&quot;]]
-        doc &lt;- html(nonParsedSummaryOfOutbreaks[[&quot;resp&quot;]], encoding = &quot;ISO-8859-1&quot;)
+        doc &lt;- html(nonParsedSummaryOfOutbreaks[[&quot;resp&quot;]], encoding = &quot;UTF-8&quot;)
         outbreak_country &lt;- doc %&gt;%
                 html_nodes(&quot;.vacborder:nth-child(1) a&quot;) %&gt;%
                 html_attr(&quot;href&quot;) %&gt;%
@@ -551,6 +564,13 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
         status &lt;- doc %&gt;%
                 html_nodes(&quot;.vacborder.last&quot;) %&gt;%
                 html_text
+        if(!exists(&quot;P2counter&quot;)) P2counter &lt;&lt;- 0
+        P2counter &lt;&lt;- P2counter + 1
+        if(P2counter %% 50 == 0) {
+                cat(P2counter, &quot;\n&quot;)
+                } else {
+                        if(P2counter %% 10 == 0) cat(&quot;|&quot;) else cat(&quot;.&quot;)
+                }
         return(data.frame(year,
                           outbreak_country,
                           outbreak_report,
@@ -574,18 +594,29 @@ url &lt;- &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/I
         if(!web_not_changed)
                 warning(&quot;The OIE WAHID website has changed, the following may not work.&quot;,
                         immediate. = TRUE)
+        message(paste0(&quot;Downloading summaries of outbreaks (&quot;,
+                       nrow(diseaseSummaries),
+                       &quot;):&quot;))
         summaries &lt;- apply(diseaseSummaries,
                            1,
                            function(x) downloadSummaryOfOutbreaks(x[[&quot;year&quot;]],
                                                                x[[&quot;reportid&quot;]],
-                                                               x[[&quot;summary_country&quot;]])) %&gt;%
-                lapply(parseSummaryOfOubreaks) %&gt;%
+                                                               x[[&quot;summary_country&quot;]]))
+        message(paste0(&quot;Parsing summaries of outbreaks (&quot;, length(summaries), &quot;):&quot;))
+        summaries %&lt;&gt;% lapply(parseSummaryOfOubreaks) %&gt;%
                 do.call(&quot;rbind&quot;, .)
         class(summaries) %&lt;&gt;% c(., &quot;summary of outbreaks&quot;)
         return(summaries)
 }</code></pre>
-<pre class="r"><code>summaries_of_outbreaks &lt;- getSummariesOfOutbreaks(summaries)
-write.csv2(summaries_of_outbreaks, file = &quot;summaries_of_outbreaks.csv&quot;, fileEncoding = &quot;UTF-8&quot;)</code></pre>
+<pre class="r"><code>summaries_of_outbreaks &lt;- getSummariesOfOutbreaks(summaries)</code></pre>
+<pre><code>## Downloading summaries of outbreaks (6):</code></pre>
+<pre><code>## ......</code></pre>
+<pre><code>## Parsing summaries of outbreaks (6):</code></pre>
+<pre><code>## ......</code></pre>
+<pre class="r"><code>write.csv2(summaries_of_outbreaks, file = &quot;summaries_of_outbreaks.csv&quot;,
+            row.names = FALSE,
+            na = &quot;&quot;,
+            fileEncoding = &quot;UTF-8&quot;)</code></pre>
 <pre class="r"><code>downloadOutbreakReport &lt;- function(year,
                                    outbreakReportID,
                                    outbreakCountry,
@@ -613,6 +644,13 @@ write.csv2(summaries_of_outbreaks, file = &quot;summaries_of_outbreaks.csv&quot;
                      add_headers(Referer = &quot;http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/listoutbreak&quot;)
                      )
         stop_for_status(resp)
+        if(!exists(&quot;D3counter&quot;)) D3counter &lt;&lt;- 0
+        D3counter &lt;&lt;- D3counter + 1
+        if(D3counter %% 50 == 0) {
+                cat(D3counter, &quot;\n&quot;)
+                } else {
+                        if(D3counter %% 10 == 0) cat(&quot;|&quot;) else cat(&quot;.&quot;)
+                }
         return(list(year = year,
                     reportid = outbreakReportID,
                     summary_country = outbreakCountry,
@@ -636,7 +674,7 @@ write.csv2(summaries_of_outbreaks, file = &quot;summaries_of_outbreaks.csv&quot;
         year &lt;- nonParsedOutbreakReport[[&quot;year&quot;]]
         outbreak_country &lt;- nonParsedOutbreakReport[[&quot;summary_country&quot;]]
         reportid &lt;- nonParsedOutbreakReport[[&quot;reportid&quot;]]
-        doc &lt;- html(nonParsedOutbreakReport[[&quot;resp&quot;]], encoding = &quot;ISO-8859-1&quot;)
+        doc &lt;- html(nonParsedOutbreakReport[[&quot;resp&quot;]], encoding = &quot;UTF-8&quot;)
         data &lt;- doc %&gt;%
                 html_nodes(&quot;.vacborder&quot;) %&gt;%
                 html_text
@@ -691,9 +729,14 @@ write.csv2(summaries_of_outbreaks, file = &quot;summaries_of_outbreaks.csv&quot;
                           species_breakdown,
                           stringsAsFactors = FALSE,
                           row.names = NULL)
-        write.csv2(ret, file = &quot;ret.csv&quot;)
-        return(ret)
-        
+        if(!exists(&quot;P3counter&quot;)) P3counter &lt;&lt;- 0
+        P3counter &lt;&lt;- P3counter + 1
+        if(P3counter %% 50 == 0) {
+                cat(P3counter, &quot;\n&quot;)
+                } else {
+                        if(P3counter %% 10 == 0) cat(&quot;|&quot;) else cat(&quot;.&quot;)
+                }
+        return(ret)        
         }</code></pre>
 <pre class="r"><code>getOutbreakReports &lt;- function(outbreakSummaries, writeCSV = FALSE) {
         if(!&quot;summary of outbreaks&quot; %in% class(outbreakSummaries))
@@ -703,6 +746,9 @@ write.csv2(summaries_of_outbreaks, file = &quot;summaries_of_outbreaks.csv&quot;
         if(!web_not_changed)
                 warning(&quot;The OIE WAHID website has changed, the following may not work.&quot;,
                         immediate. = TRUE)
+        message(paste0(&quot;Downloading outbreak reports (&quot;,
+                       nrow(outbreakSummaries),
+                       &quot;):&quot;))
         reports &lt;- apply(outbreakSummaries,
                          1,
                          function(x) downloadOutbreakReport(x[[&quot;year&quot;]],
@@ -710,28 +756,56 @@ write.csv2(summaries_of_outbreaks, file = &quot;summaries_of_outbreaks.csv&quot;
                                                             x[[&quot;outbreak_country&quot;]],
                                                             gsub(&quot;http://www.oie.int/wahis_2/public/wahid.php/Reviewreport/Review\\?page_refer=MapFullEventReport&amp;reportid=&quot;,
                                                                  &quot;&quot;,
-                                                                 x[[&quot;full_report_link&quot;]]))) %&gt;%
+                                                                 x[[&quot;full_report_link&quot;]])))
+        message(paste0(&quot;Parsing outbreak reports(&quot;, length(reports), &quot;):&quot;))
+        reports %&lt;&gt;%
                 lapply(parseOutbreakReport) %&gt;%
                 do.call(&quot;rbind&quot;, .)
         if(writeCSV) {
-                write.csv(reports,
+                write.table(reports,
                           file = paste0(&quot;outbreaks of &quot;,
                                         disease,
                                         &quot;, year &quot;,
                                         paste0(unique(range(years)), collapse = &quot;-&quot;),
                                         &quot;, countries&quot;,
                                         paste0(countries, collapse = &quot;, &quot;),
-                                        &quot;.csv&quot;
-                                        ),
-                          na = &quot;&quot;
-                          )
+                                        &quot;.txt&quot;),
+                          na = &quot;&quot;,
+                          fileEncoding = &quot;UTF-8&quot;)
                 return(NULL)
                 } else {
                         return(reports)
                         }
         }</code></pre>
-<pre class="r"><code>outbreak_reports &lt;- getOutbreakReports(summaries_of_outbreaks)
-write.csv2(outbreak_reports, file = &quot;outbreak_reports.csv&quot;)</code></pre>
+<pre class="r"><code>outbreak_reports &lt;- getOutbreakReports(summaries_of_outbreaks)</code></pre>
+<pre><code>## Downloading outbreak reports (96):</code></pre>
+<pre><code>## .........|.........|.........|.........|.........50 
+## .........|.........|.........|.........|......</code></pre>
+<pre><code>## Parsing outbreak reports(96):</code></pre>
+<pre><code>## .........|.........|.........|.........|.........50 
+## .........|.........|.........|.........|......</code></pre>
+<pre class="r"><code>write.csv2(outbreak_reports, file = &quot;outbreak_reports.csv&quot;, row.names = FALSE,
+           na = &quot;&quot;, fileEncoding = &quot;UTF-8&quot;)</code></pre>
+<pre class="r"><code># library(plotGoogleMaps)
+# outbreak_reportsSPDF &lt;- outbreak_reports
+# coordinates(outbreak_reportsSPDF) &lt;- ~lon + lat
+# proj4string(outbreak_reportsSPDF) &lt;- CRS(&quot;+proj=longlat +datum=WGS84&quot;)
+# ic &lt;- iconlabels(outbreak_reportsSPDF$species, height = 5, icon = TRUE)
+# map &lt;- plotGoogleMaps(outbreak_reportsSPDF,
+#                       file = &quot;map.html&quot;,
+#                       zcol = &quot;start_date&quot;,
+#                       mapTypeId = &quot;TERRAIN&quot;,
+#                       legend = FALSE,
+#                       control = FALSE,
+#                       iconMarker = ic)
+
+# library(ggmap)
+# theme_set(theme_bw(16))
+# europe_map &lt;- qmap(&quot;Ukraine&quot;, zoom = 5, source = &quot;stamen&quot;)
+# europe_map +
+#         geom_point(aes(x = lon, y = lat, colour = start_date, size = cases_total),
+#                    data = outbreak_reports)
+# qmplot(lon, lat, data = outbreak_reports)</code></pre>
 <p>Cite packages! Encodings! Specify a country! Make a consistent flow!</p>
 </div>
 
