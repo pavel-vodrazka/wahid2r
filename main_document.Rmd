@@ -272,6 +272,7 @@ downloadSINF <- function(disease_id_hidden,
                      "\") is outside the range of WAHIS reports.")
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
         resp <- POST(url = url,
+                     config = list(ssl.verifypeer = FALSE),
                      body = list(disease_id_hidden = disease_id_hidden,
                                  disease_type_hidden = disease_type_hidden,
                                  year = year),
@@ -607,7 +608,7 @@ getSINF <- function(formValues,
                 } else {
                         countries <- countries_available
                         }
-        templateSINFs <- data_frame(disease = character(0),
+        template_sinfs <- data_frame(disease = character(0),
                                     year = character(0),
                                     disease_id_hidden = character(0),
                                     disease_type_hidden = character(0),
@@ -622,34 +623,41 @@ getSINF <- function(formValues,
         entered <- data_frame(disease_id_hidden = diseaseID, year = years)
         message("- Entered (", nrow(entered), "):")
         print(entered)
-        if(file.exists(file) & !newDownload) {
-                message("- Using cache file.")
-                cachedSINFs <- readRDS(file)
+        if(file.exists(file)) {
+                message("- Using cache file",
+                        if(newDownload) {paste0(", dropping cached SINFs for ",
+                                                disease,
+                                                "and year(s) ",
+                                                paste0(years, collapse = ", "))
+                                         },
+                        ".")
+                cached_sinfs <- readRDS(file)
                 if(!"summary of immediate notifications and followups"
-                   %in% class(cachedSINFs)) {
+                   %in% class(cached_sinfs)) {
                         warning("Cached SINFs file ignored because it doesn't ",
                                 "have right format, building a new one.",
                                 immediate. = TRUE)
-                        cachedSINFs <- templateSINFs
-                        class(cachedSINFs) %<>% c(.,
-                                                  "summary of immediate notifications and followups")
+                        cached_sinfs <- template_sinfs
                         }
                 } else {
-                        cachedSINFs <- templateSINFs
-                        class(cachedSINFs) %<>% c(., "summary of immediate notifications and followups")
+                        cached_sinfs <- template_sinfs
                         }
-        suppressMessages(cached <- inner_join(cachedSINFs, entered))
+        suppressMessages(cached <- inner_join(cached_sinfs, entered))
         message("- Cached (", nrow(cached),"):")
         print(cached)
-        to_download <- years[!years %in% cached[["year"]]]
+        if(newDownload) {
+                to_download <- years
+        } else {
+                to_download <- years[!years %in% cached[["year"]]]
+                }
         message("- To download (", length(to_download), "):")
         print(to_download)
         if(!newDownload) {
                 suppressMessages(back_to_cache <- entered %>%
-                                         anti_join(cachedSINFs, .) %>%
+                                         anti_join(cached_sinfs, .) %>%
                                          rbind(cached))
                 } else {
-                        suppressMessages(back_to_cache <- anti_join(cachedSINFs,
+                        suppressMessages(back_to_cache <- anti_join(cached_sinfs,
                                                                     entered))
                         }
         message("- Back to cache (", nrow(back_to_cache), "):")
@@ -681,10 +689,17 @@ getSINF <- function(formValues,
         message("- Downloaded to write (", nrow(summaries_to_write), "):")
         print(summaries_to_write)
         write_cache <- rbind(back_to_cache,
-                             summaries_to_write)
+                             summaries_to_write) %>%
+                                arrange(disease_id_hidden, year, country, reportid)
         class(write_cache) %<>% c(., "summary of immediate notifications and followups")
-        saveRDS(write_cache, file)
-        summaries_to_return <- rbind(cached, summaries)
+        if(!identical(cached_sinfs, write_cache))
+                saveRDS(write_cache, file)
+        if(!newDownload) {
+                summaries_to_return <- rbind(cached, summaries) %>%
+                        arrange(year, country, reportid)
+        } else {
+                summaries_to_return <- summaries
+                }
         if(!missing(countries))
                 summaries_to_return %<>% filter(summary_country %in% countries[["ISO3"]])
         summaries_to_return %<>% distinct_("reportid")
@@ -795,11 +810,9 @@ parseSO <- function(x) {
                 }
         return(data_frame(x))
         }
-
 ```
 
 ```{r function-getSO, cache=TRUE, autodep=TRUE}
-#TODO
 getSO <- function(SINF) {
         if(!"summary of immediate notifications and followups" %in%
                    class(SINF))
