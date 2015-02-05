@@ -262,7 +262,7 @@ getSINF <- function(formValues,
         }
         write_cache <- rbind(back_to_cache,
                              summaries) %>%
-                arrange(disease_id_hidden, year, country, reportid)
+                arrange(as.integer(disease_id_hidden), year, country, reportid)
         class(write_cache) %<>% c(., "summary of immediate notifications and followups")
         if(!identical(cached_sinfs, write_cache)) {
                 message("- Writing cache.")

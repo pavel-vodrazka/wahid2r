@@ -1,4 +1,4 @@
-getOutbreakReports <- function(outbreakSummaries, writeCSV = FALSE) {
+getOR <- function(outbreakSummaries, writeCSV = FALSE) {
         if(!"summary of outbreaks" %in% class(outbreakSummaries))
                 stop("The argument \"outbreakSummaries\" is not of class \"summary of outbreaks\".")
         if(!exists("web_not_changed"))
@@ -16,15 +16,15 @@ getOutbreakReports <- function(outbreakSummaries, writeCSV = FALSE) {
                        "):"))
         reports <- apply(outbreakSummaries,
                          1,
-                         function(x) downloadOutbreakReport(x[["year"]],
-                                                            x[["outbreak_report"]],
-                                                            x[["outbreak_country"]],
-                                                            gsub("http://www.oie.int/wahis_2/public/wahid.php/Reviewreport/Review\\?page_refer=MapFullEventReport&reportid=",
-                                                                 "",
-                                                                 x[["full_report_link"]])))
-        message(paste0("Parsing outbreak reports(", length(reports), "):"))
+                         function(x) downloadOR(x[["year"]],
+                                                x[["outbreak_report"]],
+                                                x[["outbreak_country"]],
+                                                gsub("http://www.oie.int/wahis_2/public/wahid.php/Reviewreport/Review\\?page_refer=MapFullEventReport&reportid=",
+                                                     "",
+                                                     x[["full_report_link"]])))
+        message(paste0("Parsing outbreak reports (", length(reports), "):"))
         reports %<>%
-                lapply(parseOutbreakReport) %>%
+                lapply(parseOR) %>%
                 do.call("rbind", .)
         attr(reports, "disease") <- attr(outbreakSummaries, "disease")
         attr(reports, "countries") <- attr(outbreakSummaries, "countries")

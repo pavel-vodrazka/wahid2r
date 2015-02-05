@@ -1,4 +1,4 @@
-parseOutbreakReport <- function(nonParsedOutbreakReport) {
+parseOR <- function(nonParsedOutbreakReport) {
         if(!all(c("year",
                   "summary_country",
                   "reportid",

@@ -61,15 +61,16 @@ parseSINF <- function(nonParsedSINF) {
         } else {
                 if(P1counter %% 10 == 0) cat("|") else cat(".")
         }
+        empty <- length(reportid) == 0
         return(data_frame(year,
                           disease_id_hidden,
                           disease_type_hidden,
-                          country = if(length(full_report_link) > 0) country else NA,
-                          status = if(length(full_report_link) > 0) status else "Resolved",
-                          date = if(length(full_report_link) > 0) date else NA,
-                          summary_country = if(length(full_report_link) > 0) summary_country else NA,
-                          reportid = if(length(full_report_link) > 0) reportid else NA,
-                          event_summary_link = if(length(full_report_link) > 0) event_summary_link else NA,
-                          full_report_link = if(length(full_report_link) > 0) full_report_link else NA,
+                          country = if(!empty) country else NA_character_,
+                          status = if(!empty) status else NA_character_,
+                          date = if(!empty) date else as.Date(NA_character_, format = "%Y-%m-%d"),
+                          summary_country = if(!empty) summary_country else NA_character_,
+                          reportid = if(!empty) reportid else NA_character_,
+                          event_summary_link = if(!empty) event_summary_link else NA_character_,
+                          full_report_link = if(!empty) full_report_link else NA_character_,
                           SINF_retrieved))
 }

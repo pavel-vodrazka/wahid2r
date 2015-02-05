@@ -1,4 +1,4 @@
-downloadOutbreakReport <- function(x) {
+downloadOR <- function(x) {
         if(!all(c("reportid", "summary_country") %in% names(summaryRecord)))
                 stop("Not all required arguments specified.")
         if(any(missing(year),

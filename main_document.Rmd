@@ -4,7 +4,14 @@ title: Making a map of African Swine Fever (ASF) outbreaks in Europe from the da
 author: "Pavel Vodrážka"
 date: "Thursday, January 15, 2015"
 output:
-  html_document: default
+  html_document:
+    keep_md: yes
+    theme: flatly
+    toc: yes
+  pdf_document:
+    latex_engine: xelatex
+    toc: yes
+  word_document: default
 ---
 
 ### Reason
@@ -36,7 +43,7 @@ footer:
 | Release date: 30 December 2013 August 2012                   |
 +--------------------------------------------------------------+
 ```
-```{r loadPackages}
+```{r loadPackages, message=FALSE}
 library(rvest)
 library(httr)
 library(dplyr)
@@ -46,7 +53,8 @@ library(rworldmap)
 library(lubridate)
 ```
 
-```{r function-checkIfwebNotChanged, child="checkIfwebNotChanged.R", cache=TRUE}```
+```{r function-checkIfwebNotChanged, code=readLines('checkIfWebNotChanged.R'), echo=FALSE, results='hide'}
+```
 
 We first need to be able to programmatically fill the form on the page and download 
 the resulting summaries. We prepare a function `getDiseaseSummaries` using some 
@@ -58,19 +66,24 @@ contains a function `summaries_fun` that is created programmatically from the
 page source code and that will serve to submit that form and retrieve the 
 resulting webpages.
 
-```{r function-getDiseaseFormValues, child="getDiseaseFormValues.R", cache=TRUE, autodep=TRUE}```
+```{r function-getDiseaseFormValues, code=readLines('getDiseaseFormValues.R'), echo=FALSE, results='hide'}
+```
 
-```{r obtainFormValues, cache=TRUE, autodep=TRUE}
+```{r obtainFormValues}
 form_values <- getDiseaseFormValues(disease = "african swine fever")
 ```
 
-```{r function-downloadSINF, child="downloadSINF.R", cache=TRUE, autodep=TRUE}```
+```{r function-downloadSINF, code=readLines('downloadSINF.R'), echo=FALSE, results='hide'}
+```
 
-```{r function-parseSINF, child="parseSINF.R", cache=TRUE, autodep=TRUE}```
+```{r function-parseSINF, code=readLines('parseSINF.R'), echo=FALSE, results='hide'}
+```
 
-```{r function-getCountries, child="getCountries.R", cache=TRUE, autodep=TRUE}```
+```{r function-getCountries, code=readLines('getCountries.R'), echo=FALSE, results='hide'}
+```
 
-```{r function-getSINF, child = "getSINF.R", cache=TRUE, autodep=TRUE}```
+```{r function-getSINF, code=readLines('getSINF.R'), echo=FALSE, results='hide'}
+```
 
 By inspecting the page source and the forms we figure out the necessary 
 parameters to the `getDiseaseSummaries` function: `disease_id_terrestrial` 
@@ -79,28 +92,33 @@ notifications and follow-ups as a `summaries` object -- a list containing the ra
 html of pages returned by repeatedly submitting the form with given disease selected 
 for the range of years speficied.
 
-```{r getDiseaseSummaries, cache=TRUE, autodep=TRUE}
+```{r getDiseaseSummaries}
 summaries <- getSINF(formValues = form_values
-#                      ,years = 2012:2015
+#                      ,years = 2005:2009
                      #                                 ,countryNames = "Africa"
-                     #                                 ,newDownload = TRUE
+                                                     ,newDownload = TRUE
 #                      , cacheInterval = "1 min"
 )
 
 write.csv2(summaries, file = "summaries.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
 ```
 
+#TODO BSE: returns date as character
+
 Now we will parse the html of the pages stored in the `summaries` object.
 
 [//]: # (Finish here)
 
-```{r function-downloadSO, child="downloadSO.R", cache=TRUE, autodep=TRUE}```
+```{r function-downloadSO, code=readLines('downloadSO.R'), echo=FALSE, results='hide'}
+```
 
-```{r function-parseSO, child="parseSO.R", cache=TRUE, autodep=TRUE}```
+```{r function-parseSO, code=readLines('parseSO.R'), echo=FALSE, results='hide'}
+```
 
-```{r function-getSO, child="getSO.R", cache=TRUE, autodep=TRUE}```
+```{r function-getSO, code=readLines('getSO.R'), echo=FALSE, results='hide'}
+```
 
-```{r getSO, cache=TRUE, autodep=TRUE}
+```{r getSO}
 summaries_of_outbreaks <- getSO(summaries)
 write.csv2(summaries_of_outbreaks, file = "summaries_of_outbreaks.csv",
             row.names = FALSE,
@@ -108,19 +126,22 @@ write.csv2(summaries_of_outbreaks, file = "summaries_of_outbreaks.csv",
             fileEncoding = "UTF-8")
 ```
 
-```{r function-downloadOutbreakReport, child="downloadOutbreakReport.R", cache=TRUE, autodep=TRUE}```
-
-```{r function-parseOutbreakReport, child="parseOutbreakReport.R", cache=TRUE, autodep=TRUE}```
-
-```{r function-getOutbreakReports, child="getOutbreakReports.R", cache=TRUE, autodep=TRUE}```
-
-```{r getOutbreakReports, cache=TRUE, autodep=TRUE}
-outbreak_reports <- getOutbreakReports(summaries_of_outbreaks)
-write.csv2(outbreak_reports, file = "outbreak_reports.csv", row.names = FALSE,
-           na = "", fileEncoding = "UTF-8")
+```{r function-downloadOR, code=readLines('downloadOR.R'), echo=FALSE, results='hide'}
 ```
 
-```{r examplePlot, cache=TRUE, autodep=TRUE}
+```{r function-parseOR, code=readLines('parseOR.R'), echo=FALSE, results='hide'}
+```
+
+```{r function-getOR, code=readLines('getOR.R'), echo=FALSE, results='hide'}
+```
+
+```{r getOutbreakReports}
+# outbreak_reports <- getOR(summaries_of_outbreaks)
+# write.csv2(outbreak_reports, file = "outbreak_reports.csv", row.names = FALSE,
+#            na = "", fileEncoding = "UTF-8")
+```
+
+```{r examplePlot}
 # library(plotGoogleMaps)
 # outbreak_reportsSPDF <- outbreak_reports
 # coordinates(outbreak_reportsSPDF) <- ~lon + lat
@@ -144,6 +165,57 @@ write.csv2(outbreak_reports, file = "outbreak_reports.csv", row.names = FALSE,
 
 ```
 
+### Functions used
+#### checkIfWebNotChanged
+```{r code=readLines('checkIfWebNotChanged.R'), eval=FALSE}
+```
+
+#### getDiseaseFormValues
+```{r code=readLines('getDiseaseFormValues.R'), eval=FALSE}
+```
+
+#### downloadSINF
+```{r code=readLines('downloadSINF.R'), eval=FALSE}
+```
+
+#### parseSINF
+```{r code=readLines('parseSINF.R'), eval=FALSE}
+```
+
+#### getCountries
+```{r code=readLines('getCountries.R'), eval=FALSE}
+```
+
+#### getSINF
+```{r code=readLines('getSINF.R'), eval=FALSE}
+```
+
+#### downloadSO
+```{r code=readLines('downloadSO.R'), eval=FALSE}
+```
+
+#### parseSO
+```{r code=readLines('parseSO.R'), eval=FALSE}
+```
+
+#### getSO
+```{r code=readLines('getSO.R'), eval=FALSE}
+```
+
+#### downloadOR
+```{r code=readLines('downloadOR.R'), eval=FALSE}
+```
+
+#### parseOR
+```{r code=readLines('parseOR.R'), eval=FALSE}
+```
+
+#### getOR
+```{r code=readLines('getOR.R'), eval=FALSE}
+```
+
+
+
 Download and process event summaries or full reports, if needed (contain extra information).
 Cite packages!
 Make a consistent flow!
@@ -151,3 +223,4 @@ Plots (animation).
 Save data to a database. (SQLite)
 rworldmap::countryRegions
 spacetime
+session info
