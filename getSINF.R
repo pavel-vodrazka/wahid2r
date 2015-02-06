@@ -35,14 +35,14 @@ getSINF <- function(formValues,
                              paste(formValues[["label"]], collapse = ", "))
                 diseaseID <- formValues[["disease_id_hidden"]]
                 diseaseType <- formValues[["disease_type_hidden"]]
-                diseaseID_Type <- paste(diseaseID, diseaseType, sep = "-")
-                diseaseIDs_Types <- apply(select(values_labels, -label),
+                id_type <- paste(diseaseID, diseaseType, sep = "-")
+                ids_types <- apply(select(values_labels, -label),
                                           1,
                                           paste0,
                                           collapse = "-")
-                if(!diseaseID_Type %in% diseaseIDs_Types)
+                if(!id_type %in% ids_types)
                         stop("The entered combination of diseaseID and diseaseType (\"",
-                             diseaseID_Type,
+                             id_type,
                              "\") doesn't exist.")
         } else {
                 if(missing(diseaseID)) {
@@ -57,26 +57,26 @@ getSINF <- function(formValues,
                                  disease_id_hidden == diseaseID),
                           label)
         if(!missing(years)) {
-                years <- as.character(years)
+                years <- as.integer(years)
                 if(!all(years %in% years_available)) {
                         if(any(years %in% years_available)) {
                                 warning("Some of the years entered (",
                                         paste0(years[!years %in%
                                                              years_available],
-                                               collapse = ", "),
+                                               collapse = " "),
                                         ") are outside the range of WAHIS reports, ",
                                         "using only years in the range.",
                                         immediate. = TRUE)
                                 years <- years[years %in% years_available]
                         } else {
                                 stop("Year(s) entered (",
-                                     paste0(years, collapse = ", "),
+                                     paste0(years, collapse = " "),
                                      ") are outside the range of WAHIS reports.")
                         }
                 }
         } else {
                 message("- Year(s) not specified, using the whole range available (",
-                        paste0(years_available, collapse = ", "),
+                        paste0(years_available, collapse = " "),
                         ").")
                 years <- years_available
         }
@@ -163,28 +163,33 @@ getSINF <- function(formValues,
         } else {
                 countries <- countries_available
         }
-        if(is.null(cacheInterval) | is.na(cacheInterval)) cache_interval <- duration(0, "days")
-        if(is.numeric(cacheInterval)) cache_interval <- duration(cacheInterval, "days")
-        if(is.character(cacheInterval)) cache_interval <- tryCatch({
-                duration(as.numeric(gsub("(^[0-9]*[.]?[0-9]*)([[:space:]]*)(.*)", "\\1", cacheInterval)),
-                         gsub("(^[0-9]*[.]?[0-9]*)([[:space:]]*)(.*)", "\\L\\3", cacheInterval, perl = TRUE))},
-                error = function() {
-                        return(duration(1, "day"))
-                })
-        template_sinfs <- data_frame(disease = character(0),
-                                     year = character(0),
-                                     disease_id_hidden = character(0),
-                                     disease_type_hidden = character(0),
-                                     SINF_retrieved = as.POSIXct(character(0),
-                                                                 format = "%Y-%m-%dT%H:%M:%S%z"),
-                                     country = character(0),
-                                     status = character(0),
-                                     date = as.Date(character(0),
-                                                    format = "%Y-%m-%d"),
-                                     summary_country = character(0),
-                                     reportid = character(0),
-                                     event_summary_link = character(0),
-                                     full_report_link = character(0))
+        if(is.null(cacheInterval) | is.na(cacheInterval))
+                cache_interval <- duration(0, "days")
+        if(is.numeric(cacheInterval))
+                cache_interval <- duration(cacheInterval, "days")
+        if(is.character(cacheInterval))
+                cache_interval <- tryCatch({
+                        duration(as.numeric(gsub("(^[0-9]*[.]?[0-9]*)([[:space:]]*)(.*)",
+                                                 "\\1", cacheInterval)),
+                                 gsub("(^[0-9]*[.]?[0-9]*)([[:space:]]*)(.*)", "\\L\\3",
+                                      cacheInterval, perl = TRUE))},
+                        error = function() {
+                                return(duration(1, "day"))
+                        })
+        templ <- data_frame(disease = character(0),
+                            year = integer(0),
+                            disease_id_hidden = integer(0),
+                            disease_type_hidden = integer(0),
+                            SINF_retrieved = as.POSIXct(character(0),
+                                                        format = "%Y-%m-%dT%H:%M:%S%z"),
+                            country = character(0),
+                            status = character(0),
+                            date = as.Date(character(0),
+                                           format = "%Y-%m-%d"),
+                            summary_country = character(0),
+                            reportid = integer(0),
+                            event_summary_link = character(0),
+                            full_report_link = character(0))
         entered <- data_frame(disease_id_hidden = diseaseID, year = years)
         message("Getting summaries of immediate notifications and follow-ups of ",
                 select(filter(values_labels, disease_id_hidden == diseaseID), label),
@@ -198,7 +203,7 @@ getSINF <- function(formValues,
                         if(newDownload) {paste0(", dropping cached SINFs for ",
                                                 disease,
                                                 "and year(s) ",
-                                                paste0(years, collapse = ", "))
+                                                paste0(years, collapse = " "))
                         },
                         ".")
                 cached_sinfs <- readRDS(file)
@@ -207,10 +212,10 @@ getSINF <- function(formValues,
                         warning("Cached SINFs file ignored because it doesn't ",
                                 "have right format, building a new one.",
                                 immediate. = TRUE)
-                        cached_sinfs <- template_sinfs
+                        cached_sinfs <- templ
                 }
         } else {
-                cached_sinfs <- template_sinfs
+                cached_sinfs <- templ
         }
         message("- Total records in cache (all diseases): ", nrow(cached_sinfs), ".")
         suppressMessages(cached <- inner_join(cached_sinfs, entered))
@@ -258,11 +263,11 @@ getSINF <- function(formValues,
                                              as.list(summaries)))
                 message("- Downloaded records to cache: ", nrow(summaries), ".")
         } else {
-                summaries <- template_sinfs
+                summaries <- templ
         }
         write_cache <- rbind(back_to_cache,
                              summaries) %>%
-                arrange(as.integer(disease_id_hidden), year, country, reportid)
+                arrange(disease_id_hidden, year, country, reportid)
         class(write_cache) %<>% c(., "summary of immediate notifications and followups")
         if(!identical(cached_sinfs, write_cache)) {
                 message("- Writing cache.")
@@ -271,15 +276,15 @@ getSINF <- function(formValues,
                 message("- Cache not written because identical.")
         }
         if(!newDownload) {
-                summaries_to_return <- rbind(filter(cached, !year %in% expired), summaries) %>%
+                ret <- rbind(filter(cached, !year %in% expired), summaries) %>%
                         arrange(year, country, reportid)
         } else {
-                summaries_to_return <- summaries
+                ret <- summaries
         }
         if(!missing(countries))
-                summaries_to_return %<>% filter(summary_country %in% countries[["ISO3"]])
-        summaries_to_return %<>% distinct_("reportid")
-        class(summaries_to_return) %<>% c(., "summary of immediate notifications and followups")
-        message("- Deduplicated records retrieved: ", nrow(summaries_to_return), ".")
-        return(summaries_to_return)
+                ret %<>% filter(summary_country %in% countries[["ISO3"]])
+        ret %<>% distinct_("reportid")
+        class(ret) %<>% c(., "summary of immediate notifications and followups")
+        message("- Deduplicated records retrieved: ", nrow(ret), ".")
+        return(ret)
 }

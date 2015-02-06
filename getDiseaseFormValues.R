@@ -16,7 +16,7 @@ getDiseaseFormValues <- function(disease = character(),
                 if(!"OIE diseaseform values_labels" %in% class(values_labels))
                         newDownload <- TRUE
                 years_available <<- cached[["years_available"]]
-                if(!all(range(as.integer(years_available)) == c(2005, current_year)))
+                if(!all(range(years_available) == c(2005, current_year)))
                         newDownload <- TRUE
         }
         if((!file.exists(file)) | newDownload) {
@@ -27,28 +27,31 @@ getDiseaseFormValues <- function(disease = character(),
                 doc <- html(resp, encoding = "UTF-8")
                 years_available <<- doc %>%
                         html_nodes("#diseaseform #year option") %>%
-                        html_attr("value")
+                        html_attr("value") %>%
+                        as.integer
                 terrestrial_values <- doc %>%
                         html_nodes("#diseaseform #disease_id_terrestrial option") %>%
-                        html_attr("value")
+                        html_attr("value") %>%
+                        as.integer
                 terrestrial_labels <- doc %>%
                         html_nodes("#diseaseform #disease_id_terrestrial option") %>%
                         html_attr("label")
                 aquatic_values <- doc %>%
                         html_nodes("#diseaseform #disease_id_aquatic option") %>%
-                        html_attr("value")
+                        html_attr("value") %>%
+                        as.integer
                 aquatic_labels <- doc %>%
                         html_nodes("#diseaseform #disease_id_aquatic option") %>%
                         html_attr("label")
                 values_labels <<- data_frame(label = c(terrestrial_labels, aquatic_labels),
                                              disease_id_hidden = c(terrestrial_values,
                                                                    aquatic_values),
-                                             disease_type_hidden = c(rep.int("0",
+                                             disease_type_hidden = c(rep.int(0L,
                                                                              length(terrestrial_values)),
-                                                                     rep.int("1",
+                                                                     rep.int(1L,
                                                                              length(aquatic_values))
                                              )) %>%
-                        filter(disease_id_hidden != "-999") %>%
+                        filter(disease_id_hidden != -999L) %>%
                         arrange(label)
                 class(values_labels) <- c(class(values_labels), "OIE diseaseform values_labels")
                 saveRDS(list(values_labels = values_labels,
@@ -76,17 +79,17 @@ getDiseaseFormValues <- function(disease = character(),
                         message("Entered search for disease: \"", disease, "\"\n")
                         if(nrow(values_labels_filtered) == 0) {
                                 message("No disease found. Diseases available: \n")
-                                message(paste0(names(values_labels), collapse = ", "))
-                                message(paste(apply(values_labels, 1, paste, collapse = ", "),
+                                message(paste0(names(values_labels), collapse = "\t"))
+                                message(paste(apply(values_labels, 1, paste, collapse = "\t"),
                                               collapse = "\n"))
                         } else {
-                                message(paste0(names(values_labels_filtered), collapse = ", "))
-                                message(paste(apply(values_labels_filtered, 1, paste, collapse = ", "),
+                                message(paste0(names(values_labels_filtered), collapse = "\t"))
+                                message(paste(apply(values_labels_filtered, 1, paste, collapse = "\t"),
                                               collapse = "\n"))
                         }
                 } else {
-                        message(paste0(names(values_labels), collapse = ", "))
-                        message(paste(apply(values_labels, 1, paste, collapse = ", "),
+                        message(paste0(names(values_labels), collapse = "\t"))
+                        message(paste(apply(values_labels, 1, paste, collapse = "\t"),
                                       collapse = "\n"))
                 }
                 message("\nYears available:\n")

@@ -4,5 +4,8 @@ main_document_cache/
 *.csv
 processed_data/
 Thumbs.db
-*.sqlite3
 .Rproj.user
+*.rds
+*.docx
+*.md
+*.pdf

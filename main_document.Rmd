@@ -70,7 +70,7 @@ resulting webpages.
 ```
 
 ```{r obtainFormValues}
-form_values <- getDiseaseFormValues(disease = "acarapisosis")
+form_values <- getDiseaseFormValues(disease = "african swine fever")
 ```
 
 ```{r function-downloadSINF, code=readLines('downloadSINF.R'), echo=FALSE, results='hide'}
@@ -96,7 +96,7 @@ for the range of years speficied.
 summaries <- getSINF(formValues = form_values
 #                      ,years = 2005
                      #                                 ,countryNames = "Africa"
-                                                     ,newDownload = TRUE
+#                                                      ,newDownload = TRUE
 #                      , cacheInterval = "1 min"
 )
 
@@ -134,7 +134,7 @@ summaries_of_outbreaks <- getSO(summaries)
 ```
 
 ```{r getOutbreakReports}
-# outbreak_reports <- getOR(summaries_of_outbreaks)
+outbreak_reports <- getOR(summaries_of_outbreaks)
 # write.csv2(outbreak_reports, file = "outbreak_reports.csv", row.names = FALSE,
 #            na = "", fileEncoding = "UTF-8")
 ```

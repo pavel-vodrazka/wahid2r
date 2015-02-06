@@ -43,7 +43,8 @@ parseSINF <- function(nonParsedSINF) {
         reportid <- doc %>%
                 html_nodes("#diseaseform :nth-child(3) a") %>%
                 html_attr("onclick") %>%
-                gsub("outbreaklist\\('[A-Z]*',|);", "", .)
+                gsub("outbreaklist\\('[A-Z]*',|);", "", .) %>%
+                as.integer
         event_summary_link <- doc %>%
                 html_nodes(".vacborder:nth-child(4) a") %>%
                 html_attr("href") %>%
@@ -69,7 +70,7 @@ parseSINF <- function(nonParsedSINF) {
                           status = if(!empty) status else NA_character_,
                           date = if(!empty) date else as.Date(NA_character_, format = "%Y-%m-%d"),
                           summary_country = if(!empty) summary_country else NA_character_,
-                          reportid = if(!empty) reportid else NA_character_,
+                          reportid = if(!empty) reportid else NA_integer_,
                           event_summary_link = if(!empty) event_summary_link else NA_character_,
                           full_report_link = if(!empty) full_report_link else NA_character_,
                           SINF_retrieved))

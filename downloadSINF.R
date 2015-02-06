@@ -24,10 +24,10 @@ downloadSINF <- function(disease_id_hidden,
                      "and disease_type_hidden (\"",
                      diseaseID_Type,
                      "\") doesn't exist.")
-        if(!as.character(year) %in% years_available)
-                stop("The year entered (\"",
+        if(!year %in% years_available)
+                stop("The year entered: ",
                      year,
-                     "\") is outside the range of WAHIS reports.")
+                     ") is outside the range of WAHIS reports.")
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
         resp <- POST(url = url,
                      config = list(ssl.verifypeer = FALSE),

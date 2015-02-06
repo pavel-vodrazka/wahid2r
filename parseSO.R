@@ -3,9 +3,10 @@ parseSO <- function(x) {
                    !"response" %in% class(x[["resp"]]))
                 stop ("The argument specified is not a list containing a response object.")
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/listoutbreak"
-        if(!all(x[["resp"]][["url"]] == url,
-                grep("reportid", names(x[["resp"]][["request"]][["body"]][["body"]])),
-                grep("summary_country", names(x[["resp"]][["request"]][["body"]][["body"]]))))
+        postfields <- names(x[[c("resp", "request", "body", "body")]])
+        if(!all(x[[c("resp", "url")]] == url,
+                c("reportid",
+                  "summary_country") %in% postfields))
                 stop ("The argument specified is not a non parsed summary of outbreaks ", url)
         doc <- html(x[["resp"]], encoding = "UTF-8")
         x[["outbreak_country"]] <- doc %>%
@@ -15,7 +16,8 @@ parseSO <- function(x) {
         x[["outbreak_report"]] <- doc %>%
                 html_nodes(".vacborder:nth-child(1) a") %>%
                 html_attr("href") %>%
-                gsub("javascript: outbreak_report\\(\\\"[A-Z]*\\\",|\\);", "", .)
+                gsub("javascript: outbreak_report\\(\\\"[A-Z]*\\\",|\\);", "", .) %>%
+                as.integer
         x[["full_report_link"]] <- doc %>%
                 html_nodes(".vacborder:nth-child(2) a") %>%
                 html_attr("href") %>%

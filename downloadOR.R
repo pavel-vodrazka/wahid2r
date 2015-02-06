@@ -1,28 +1,19 @@
-downloadOR <- function(x) {
-        if(!all(c("reportid", "summary_country") %in% names(summaryRecord)))
+downloadOR <- function(SOrow) {
+        if(!all(c("outbreak_report", "summary_country", "reportid")
+                %in% names(SOrow)))
                 stop("Not all required arguments specified.")
-        if(any(missing(year),
-               missing(outbreakReportID),
-               missing(outbreakCountry),
-               missing(fullReportID)))
-                stop("Not all required arguments specified.")
-        url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/outbreakreport"
+        url <- paste0("http://www.oie.int/wahis_2/public/wahid.php/",
+                      "Diseaseinformation/Immsummary/outbreakreport")
         if(!exists("web_not_changed"))
                 web_not_changed <- checkIfwebNotChanged()
-        if(!web_not_changed)
-                warning("The OIE WAHID website has changed, the following may not work.",
-                        immediate. = TRUE)
         resp <- POST(url = url,
-                     body = paste0("reportid=",
-                                   outbreakReportID,
-                                   "&summary_country=",
-                                   outbreakCountry,
-                                   "&backreportid=",
-                                   fullReportID
-                     ),
-                     content_type("application/x-www-form-urlencoded"),
-                     add_headers(Referer = "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary/listoutbreak")
-        )
+                     body = list(reportid = SOrow[["outbreak_report"]],
+                                 summary_country = SOrow[["summary_country"]],
+                                 backreportid = SOrow[["reportid"]]),
+                     encoding = "form",
+                     add_headers(Referer = paste0("http://www.oie.int/wahis_2/",
+                                                  "public/wahid.php/Diseaseinformation/",
+                                                  "Immsummary/listoutbreak")))
         stop_for_status(resp)
         if(!exists("D3counter")) D3counter <<- 0
         D3counter <<- D3counter + 1
@@ -31,8 +22,8 @@ downloadOR <- function(x) {
         } else {
                 if(D3counter %% 10 == 0) cat("|") else cat(".")
         }
-        return(list(year = year,
-                    reportid = outbreakReportID,
-                    summary_country = outbreakCountry,
-                    resp = resp))
+        return(c(SOrow,
+                 list(resp = resp,
+                      OR_retrieved = as.POSIXct(Sys.time(),
+                                                "%Y-%m-%dT%H:%M:%S%z"))))
 }
