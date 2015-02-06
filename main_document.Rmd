@@ -70,7 +70,7 @@ resulting webpages.
 ```
 
 ```{r obtainFormValues}
-form_values <- getDiseaseFormValues(disease = "african swine fever")
+form_values <- getDiseaseFormValues(disease = "acarapisosis")
 ```
 
 ```{r function-downloadSINF, code=readLines('downloadSINF.R'), echo=FALSE, results='hide'}
@@ -94,16 +94,14 @@ for the range of years speficied.
 
 ```{r getDiseaseSummaries}
 summaries <- getSINF(formValues = form_values
-#                      ,years = 2005:2009
+#                      ,years = 2005
                      #                                 ,countryNames = "Africa"
                                                      ,newDownload = TRUE
 #                      , cacheInterval = "1 min"
 )
 
-write.csv2(summaries, file = "summaries.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
+# write.csv2(summaries, file = "summaries.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
 ```
-
-#TODO BSE: returns date as character
 
 Now we will parse the html of the pages stored in the `summaries` object.
 
@@ -120,10 +118,10 @@ Now we will parse the html of the pages stored in the `summaries` object.
 
 ```{r getSO}
 summaries_of_outbreaks <- getSO(summaries)
-write.csv2(summaries_of_outbreaks, file = "summaries_of_outbreaks.csv",
-            row.names = FALSE,
-            na = "",
-            fileEncoding = "UTF-8")
+# write.csv2(summaries_of_outbreaks, file = "summaries_of_outbreaks.csv",
+#             row.names = FALSE,
+#             na = "",
+#             fileEncoding = "UTF-8")
 ```
 
 ```{r function-downloadOR, code=readLines('downloadOR.R'), echo=FALSE, results='hide'}

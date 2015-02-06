@@ -90,7 +90,13 @@ getSO <- function(SINF,
         if(nrow(to_download) > 0) {
                 message("- Downloading summaries of outbreaks (", nrow(to_download), "):")
                 D2counter <<- 0
-                summaries <- apply(to_download, 1, downloadSO)
+#                 summaries <- apply(to_download, 1, downloadSO)
+                summaries <- list()
+                for(i in 1:nrow(to_download)) {
+                        summaries[[i]] <- to_download %>%
+                                slice(i) %>%
+                                downloadSO
+                }
                 message("- Parsing summaries of outbreaks (", length(summaries), "):")
                 P2counter <<- 0
                 summaries %<>% lapply(parseSO)
@@ -117,6 +123,6 @@ getSO <- function(SINF,
         }
 
         class(summaries_to_return) %<>% c(., "summary of outbreaks")
-        message("- Deduplicated records retrieved: ", nrow(summaries_to_return), ".")
+        message("- Records retrieved: ", nrow(summaries_to_return), ".")
         return(summaries_to_return)
 }
