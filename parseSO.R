@@ -18,12 +18,12 @@ parseSO <- function(x) {
                 html_attr("href") %>%
                 gsub("javascript: outbreak_report\\(\\\"[A-Z]*\\\",|\\);", "", .) %>%
                 as.integer
-        x[["full_report_link"]] <- doc %>%
-                html_nodes(".vacborder:nth-child(2) a") %>%
-                html_attr("href") %>%
-                gsub("javascript: open_report\\(\"", "http://www.oie.int", .) %>%
-                gsub("\",", "reportid=", .) %>%
-                gsub("\\);", "", .)
+#         x[["full_report_link"]] <- doc %>%
+#                 html_nodes(".vacborder:nth-child(2) a") %>%
+#                 html_attr("href") %>%
+#                 gsub("javascript: open_report\\(\"", "http://www.oie.int", .) %>%
+#                 gsub("\",", "reportid=", .) %>%
+#                 gsub("\\);", "", .)
         x[["loc1"]] <- doc %>%
                 html_nodes(".vacborder:nth-child(3)") %>%
                 html_text

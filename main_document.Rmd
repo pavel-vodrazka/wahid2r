@@ -70,7 +70,7 @@ resulting webpages.
 ```
 
 ```{r obtainFormValues}
-form_values <- getDiseaseFormValues(disease = "african swine fever")
+form_values <- getDiseaseFormValues(disease = "classical swine fever")
 ```
 
 ```{r function-downloadSINF, code=readLines('downloadSINF.R'), echo=FALSE, results='hide'}
@@ -94,7 +94,7 @@ for the range of years speficied.
 
 ```{r getDiseaseSummaries}
 summaries <- getSINF(formValues = form_values
-#                      ,years = 2005
+                     ,years = 2006
                      #                                 ,countryNames = "Africa"
 #                                                      ,newDownload = TRUE
 #                      , cacheInterval = "1 min"
@@ -140,26 +140,26 @@ outbreak_reports <- getOR(summaries_of_outbreaks)
 ```
 
 ```{r examplePlot}
-# library(plotGoogleMaps)
-# outbreak_reportsSPDF <- outbreak_reports
-# coordinates(outbreak_reportsSPDF) <- ~lon + lat
-# proj4string(outbreak_reportsSPDF) <- CRS("+proj=longlat +datum=WGS84")
-# ic <- iconlabels(outbreak_reportsSPDF$species, height = 5, icon = TRUE)
-# map <- plotGoogleMaps(outbreak_reportsSPDF,
-#                       file = "map.html",
-#                       zcol = "start_date",
-#                       mapTypeId = "TERRAIN",
-#                       legend = FALSE,
-#                       control = FALSE,
-#                       iconMarker = ic)
+library(plotGoogleMaps)
+outbreak_reportsSPDF <- as.data.frame(outbreak_reports)
+coordinates(outbreak_reportsSPDF) <- ~lon + lat
+proj4string(outbreak_reportsSPDF) <- CRS("+proj=longlat +datum=WGS84")
+ic <- iconlabels(outbreak_reportsSPDF$species, height = 5, icon = TRUE)
+map <- plotGoogleMaps(outbreak_reportsSPDF,
+                      file = "map.html",
+                      zcol = "start_date",
+                      mapTypeId = "TERRAIN",
+                      legend = FALSE,
+                      control = FALSE,
+                      iconMarker = ic)
 
-# library(ggmap)
-# theme_set(theme_bw(16))
-# europe_map <- qmap("Ukraine", zoom = 5, source = "stamen")
-# europe_map +
-#         geom_point(aes(x = lon, y = lat, colour = start_date, size = cases_total),
-#                    data = outbreak_reports)
-# qmplot(lon, lat, data = outbreak_reports)
+library(ggmap)
+theme_set(theme_bw(16))
+europe_map <- qmap("Ukraine", zoom = 5)
+europe_map +
+        geom_point(aes(x = lon, y = lat, colour = start_date, size = cases_total),
+                   data = outbreak_reports)
+qmplot(lon, lat, data = outbreak_reports, source = "google")
 
 ```
 

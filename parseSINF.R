@@ -45,16 +45,16 @@ parseSINF <- function(nonParsedSINF) {
                 html_attr("onclick") %>%
                 gsub("outbreaklist\\('[A-Z]*',|);", "", .) %>%
                 as.integer
-        event_summary_link <- doc %>%
-                html_nodes(".vacborder:nth-child(4) a") %>%
-                html_attr("href") %>%
-                paste0("http://www.oie.int", .)
-        full_report_link <- doc %>%
-                html_nodes(".vacborder:nth-child(5) a") %>%
-                html_attr("href") %>%
-                gsub("javascript: open_report\\(\"", "http://www.oie.int", .) %>%
-                gsub("\",", "reportid=", .) %>%
-                gsub("\\);", "", .)
+#         event_summary_link <- doc %>%
+#                 html_nodes(".vacborder:nth-child(4) a") %>%
+#                 html_attr("href") %>%
+#                 paste0("http://www.oie.int", .)
+#         full_report_link <- doc %>%
+#                 html_nodes(".vacborder:nth-child(5) a") %>%
+#                 html_attr("href") %>%
+#                 gsub("javascript: open_report\\(\"", "http://www.oie.int", .) %>%
+#                 gsub("\",", "reportid=", .) %>%
+#                 gsub("\\);", "", .)
         if(!exists("P1counter")) P1counter <<- 0
         P1counter <<- P1counter + 1
         if(P1counter %% 50 == 0) {
@@ -71,7 +71,7 @@ parseSINF <- function(nonParsedSINF) {
                           date = if(!empty) date else as.Date(NA_character_, format = "%Y-%m-%d"),
                           summary_country = if(!empty) summary_country else NA_character_,
                           reportid = if(!empty) reportid else NA_integer_,
-                          event_summary_link = if(!empty) event_summary_link else NA_character_,
-                          full_report_link = if(!empty) full_report_link else NA_character_,
+#                           event_summary_link = if(!empty) event_summary_link else NA_character_,
+#                           full_report_link = if(!empty) full_report_link else NA_character_,
                           SINF_retrieved))
 }

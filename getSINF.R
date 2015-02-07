@@ -187,9 +187,9 @@ getSINF <- function(formValues,
                             date = as.Date(character(0),
                                            format = "%Y-%m-%d"),
                             summary_country = character(0),
-                            reportid = integer(0),
-                            event_summary_link = character(0),
-                            full_report_link = character(0))
+                            reportid = integer(0))
+#                             event_summary_link = character(0),
+#                             full_report_link = character(0))
         entered <- data_frame(disease_id_hidden = diseaseID, year = years)
         message("Getting summaries of immediate notifications and follow-ups of ",
                 select(filter(values_labels, disease_id_hidden == diseaseID), label),
