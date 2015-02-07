@@ -93,7 +93,8 @@ getOR <- function(SO,
                                 anti_join(cached_ors)})
                 expired <- cached %>%
                         filter(status == "Continuing"
-                               | outbreak_status == "Continuing") %>%
+                               | outbreak_status == "Continuing"
+                               | is.na(outbreak_status)) %>%
                         group_by(outbreak_report) %>%
                         summarise(oldest = min(OR_retrieved)) %>%
                         filter(oldest < Sys.time() - cache_interval) %>%

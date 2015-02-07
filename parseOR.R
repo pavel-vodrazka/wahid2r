@@ -22,36 +22,37 @@ parseOR <- function(x) {
         len <- length(data)
         missing_or <- len == 15
         x[["resp"]] <- NULL
-        x[["resolution_date"]] <- if(missing_or) NA else
-                data[3] %>% as.Date("%d/%m/%Y")
-        x[["loc4"]] <-  if(missing_or) NA else data[8]
-        x[["lat"]] <- if(missing_or) NA else data[9] %>% as.numeric
-        x[["lon"]] <- if(missing_or) NA else data[10] %>% as.numeric
-        x[["description"]] <- if(missing_or) NA else data[11]
-        x[["multi_species"]] <- len > 20
+        x[["resolution_date"]] <- if(missing_or)
+                as.Date(NA_character_, format = "%Y-%m-%d") else
+                        data[3] %>% as.Date("%d/%m/%Y")
+        x[["loc4"]] <-  if(missing_or) NA_character_ else data[8]
+        x[["lat"]] <- if(missing_or) NA_real_ else data[9] %>% as.numeric
+        x[["lon"]] <- if(missing_or) NA_real_ else data[10] %>% as.numeric
+        x[["description"]] <- if(missing_or) NA_character_ else data[11]
+        x[["multi_species"]] <- if(missing_or) NA else len > 20
         if(!missing_or) breakdown <- data[12:(len - 4)]
         if(!missing_or) n <- length(breakdown) / 5
-        x[["species_affected"]] <- if(missing_or) NA else
+        x[["species_affected"]] <- if(missing_or) NA_character_ else
                 paste0(breakdown[seq(by = 5, length.out = n)],
                        collapse = ", ")
-        x[["at_risk_total"]] <- if(missing_or) NA else
+        x[["at_risk_total"]] <- if(missing_or) NA_integer_ else
                 data[len - 3] %>% as.integer
-        x[["cases_total"]] <- if(missing_or) NA else
+        x[["cases_total"]] <- if(missing_or) NA_integer_ else
                 data[len - 2] %>% as.integer
-        x[["deaths_total"]] <- if(missing_or) NA else
+        x[["deaths_total"]] <- if(missing_or) NA_integer_ else
                 data[len - 1] %>% as.integer
-        x[["destroyed_total"]] <- if(missing_or) NA else
+        x[["destroyed_total"]] <- if(missing_or) NA_integer_ else
                 data[len] %>% as.integer
         if(!missing_or) x %<>% lapply(function(y) rep(y, times = n))
-        x[["species"]] <- if(missing_or) NA else
+        x[["species"]] <- if(missing_or) NA_character_ else
                 breakdown[seq(by = 5, length.out = n)]
-        x[["at_risk"]] <- if(missing_or) NA else
+        x[["at_risk"]] <- if(missing_or) NA_integer_ else
                 breakdown[seq(2, by = 5, length.out = n)] %>% as.integer
-        x[["cases"]] <- if(missing_or) NA else
+        x[["cases"]] <- if(missing_or) NA_integer_ else
                 breakdown[seq(3, by = 5, length.out = n)] %>% as.integer
-        x[["deaths"]] <- if(missing_or) NA else
+        x[["deaths"]] <- if(missing_or) NA_integer_ else
                 breakdown[seq(4, by = 5, length.out = n)] %>% as.integer
-        x[["destroyed"]] <- if(missing_or) NA else
+        x[["destroyed"]] <- if(missing_or) NA_integer_ else
                 breakdown[seq(5, by = 5, length.out = n)] %>% as.integer
         if(!exists("P3counter")) P3counter <<- 0
         P3counter <<- P3counter + 1
