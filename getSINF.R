@@ -49,7 +49,9 @@ getSINF <- function(formValues,
                         stop("Disease not specified.")
                 }
                 diseaseType <- filter(values_labels,
-                                      disease_id_hidden = diseaseID)
+                                      disease_id_hidden == diseaseID) %>%
+                        select(disease_type_hidden) %>%
+                        as.integer
                 if(length(diseaseType) == 0)
                         stop("The entered diseaseID doesn't exist.")
         }

@@ -20,40 +20,100 @@ parseOR <- function(x) {
                 html_nodes(".vacborder") %>%
                 html_text
         len <- length(data)
-        missing_or <- len == 15
+        state <- if(len == 20) {
+                "OK"
+        } else {
+                if(len == 19
+                   & doc %>%
+                           html_nodes("tr:nth-child(6) .ta_left") %>%
+                           html_text == "Epidemiological Unit Type") {
+                        "MISSING_LOC_2_3" # e.g. AHS-SWZ-2005
+                } else {
+                        if(len == 15) {
+                                "MISSING_OR" # e.g. CSF-ZAF-2005
+                        }
+                }
+        }
+        if(is.null(state)) stop("Don't know how to parse this OR: ",
+                                x[["disease"]], " - ",
+                                x[["year"]], " - ",
+                                x[["country"]], " - ",
+                                x[["outbreak_report"]], ".")
         x[["resp"]] <- NULL
-        x[["resolution_date"]] <- if(missing_or)
-                as.Date(NA_character_, format = "%Y-%m-%d") else
-                        data[3] %>% as.Date("%d/%m/%Y")
-        x[["loc4"]] <-  if(missing_or) NA_character_ else data[8]
-        x[["lat"]] <- if(missing_or) NA_real_ else data[9] %>% as.numeric
-        x[["lon"]] <- if(missing_or) NA_real_ else data[10] %>% as.numeric
-        x[["description"]] <- if(missing_or) NA_character_ else data[11]
-        x[["multi_species"]] <- if(missing_or) NA else len > 20
-        if(!missing_or) breakdown <- data[12:(len - 4)]
-        if(!missing_or) n <- length(breakdown) / 5
-        x[["species_affected"]] <- if(missing_or) NA_character_ else
-                paste0(breakdown[seq(by = 5, length.out = n)],
-                       collapse = ", ")
-        x[["at_risk_total"]] <- if(missing_or) NA_integer_ else
-                data[len - 3] %>% as.integer
-        x[["cases_total"]] <- if(missing_or) NA_integer_ else
-                data[len - 2] %>% as.integer
-        x[["deaths_total"]] <- if(missing_or) NA_integer_ else
-                data[len - 1] %>% as.integer
-        x[["destroyed_total"]] <- if(missing_or) NA_integer_ else
-                data[len] %>% as.integer
-        if(!missing_or) x %<>% lapply(function(y) rep(y, times = n))
-        x[["species"]] <- if(missing_or) NA_character_ else
-                breakdown[seq(by = 5, length.out = n)]
-        x[["at_risk"]] <- if(missing_or) NA_integer_ else
-                breakdown[seq(2, by = 5, length.out = n)] %>% as.integer
-        x[["cases"]] <- if(missing_or) NA_integer_ else
-                breakdown[seq(3, by = 5, length.out = n)] %>% as.integer
-        x[["deaths"]] <- if(missing_or) NA_integer_ else
-                breakdown[seq(4, by = 5, length.out = n)] %>% as.integer
-        x[["destroyed"]] <- if(missing_or) NA_integer_ else
-                breakdown[seq(5, by = 5, length.out = n)] %>% as.integer
+        if(state == "OK") {
+                x[["resolution_date"]] <- data[3] %>% as.Date("%d/%m/%Y")
+                x[["loc4"]] <-  data[8]
+                x[["lat"]] <- data[9] %>% as.numeric
+                x[["lon"]] <- data[10] %>% as.numeric
+                x[["description"]] <- data[11]
+                x[["multi_species"]] <- len > 20
+                breakdown <- data[12:(len - 4)]
+                n <- length(breakdown) / 5
+                x[["species_affected"]] <- paste0(breakdown[seq(by = 5,
+                                                                length.out = n)],
+                                                  collapse = ", ")
+                x[["at_risk_total"]] <- data[len - 3] %>% as.integer
+                x[["cases_total"]] <- data[len - 2] %>% as.integer
+                x[["deaths_total"]] <- data[len - 1] %>% as.integer
+                x[["destroyed_total"]] <- data[len] %>% as.integer
+                x %<>% lapply(function(y) rep(y, times = n))
+                x[["species"]] <- breakdown[seq(by = 5, length.out = n)]
+                x[["at_risk"]] <- breakdown[seq(2, by = 5, length.out = n)] %>%
+                        as.integer
+                x[["cases"]] <- breakdown[seq(3, by = 5, length.out = n)] %>%
+                        as.integer
+                x[["deaths"]] <- breakdown[seq(4, by = 5, length.out = n)] %>%
+                        as.integer
+                x[["destroyed"]] <- breakdown[seq(5, by = 5, length.out = n)] %>%
+                        as.integer
+        }
+        if(state == "MISSING_LOC_2_3") {
+                x[["resolution_date"]] <- data[3] %>% as.Date("%d/%m/%Y")
+                x[["loc4"]] <-  data[7]
+                x[["lat"]] <- data[8] %>% as.numeric
+                x[["lon"]] <- data[9] %>% as.numeric
+                x[["description"]] <- data[10]
+                x[["multi_species"]] <- len > 19
+                breakdown <- data[11:(len - 4)]
+                n <- length(breakdown) / 5
+                x[["species_affected"]] <- paste0(breakdown[seq(by = 5,
+                                                                length.out = n)],
+                                                  collapse = ", ")
+                x[["at_risk_total"]] <- data[len - 3] %>% as.integer
+                x[["cases_total"]] <- data[len - 2] %>% as.integer
+                x[["deaths_total"]] <- data[len - 1] %>% as.integer
+                x[["destroyed_total"]] <- data[len] %>% as.integer
+                x %<>% lapply(function(y) rep(y, times = n))
+                x[["species"]] <- breakdown[seq(by = 5, length.out = n)]
+                x[["at_risk"]] <- breakdown[seq(2, by = 5, length.out = n)] %>%
+                        as.integer
+                x[["cases"]] <- breakdown[seq(3, by = 5, length.out = n)] %>%
+                        as.integer
+                x[["deaths"]] <- breakdown[seq(4, by = 5, length.out = n)] %>%
+                        as.integer
+                x[["destroyed"]] <- breakdown[seq(5, by = 5, length.out = n)] %>%
+                        as.integer
+        }
+        if(state == "MISSING_OR") {
+                x[["resolution_date"]] <- as.Date(NA_character_,
+                                                  format = "%Y-%m-%d")
+                x[["loc4"]] <-  NA_character_
+                x[["lat"]] <- NA_real_
+                x[["lon"]] <- NA_real_
+                x[["description"]] <- NA_character_
+                x[["multi_species"]] <- NA
+                x[["species_affected"]] <- NA_character_
+                x[["at_risk_total"]] <- NA_integer_
+                x[["cases_total"]] <- NA_integer_
+                x[["deaths_total"]] <- NA_integer_
+                x[["destroyed_total"]] <- NA_integer_
+                x[["species"]] <- NA_character_
+                x[["at_risk"]] <- NA_integer_
+                x[["cases"]] <- NA_integer_
+                x[["deaths"]] <- NA_integer_
+                x[["destroyed"]] <- NA_integer_
+        }
+
         if(!exists("P3counter")) P3counter <<- 0
         P3counter <<- P3counter + 1
         if(P3counter %% 50 == 0) {

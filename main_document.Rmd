@@ -94,8 +94,8 @@ for the range of years speficied.
 
 ```{r getDiseaseSummaries}
 summaries <- getSINF(formValues = form_values
-                     ,years = 2006
-                     #                                 ,countryNames = "Africa"
+#                      ,years = 2006
+#                                                      ,countryNames = "Croatia"
 #                                                      ,newDownload = TRUE
 #                      , cacheInterval = "1 min"
 )
