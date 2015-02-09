@@ -141,10 +141,13 @@ outbreak_reports <- getOR(summaries_of_outbreaks)
 
 ```{r getAll}
 lapply(values_labels$disease_id_hidden, function(x) {
-        getSINF(diseaseID = x) %>%
+        if(x != 9) getSINF(diseaseID = x, years = 2015) %>%
                 getSO %>%
                 getOR
 })
+# parseOR: Bluetongue - 2008 - Hungary - reportid 7334
+# Error in data.frame(disease = "Bluetongue (- -) ", year = 2008L, disease_id_hidden = 9L,  : 
+#   arguments imply differing number of rows: 1, 0
 ```
 
 

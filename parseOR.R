@@ -21,7 +21,7 @@ parseOR <- function(nonParsedOR) {
                 html_nodes(".vacborder") %>%
                 html_text
         len <- length(data)
-        state <- if(len == 20) {
+        state <- if((len - 20) %% 5 == 0) {
                 "OK"
         } else {
                 if(len == 19

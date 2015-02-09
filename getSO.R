@@ -76,7 +76,8 @@ getSO <- function(SINF,
                                 anti_join(cached_sos)})
                 expired <- cached %>%
                         filter(status == "Continuing"
-                               | outbreak_status == "Continuing") %>%
+                               | outbreak_status == "Continuing"
+                               | is.na(outbreak_status)) %>%
                         group_by(reportid) %>%
                         summarise(oldest = min(SO_retrieved)) %>%
                         filter(oldest < Sys.time() - cache_interval) %>%

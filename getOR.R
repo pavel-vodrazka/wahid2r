@@ -63,7 +63,9 @@ getOR <- function(SO,
                             cases = character(0),
                             deaths = character(0),
                             destroyed = character(0))
-        entered <- select(SO, outbreak_report)
+        entered <- SO %>%
+                filter(!is.na(outbreak_report)) %>%
+                select(outbreak_report)
         message("Getting outbreak reports (", nrow(SO), ") for outbreak summaries: ",
                 paste0(entered$outbreak_report, collapse = " "),
                 ".")
@@ -93,8 +95,7 @@ getOR <- function(SO,
                                 anti_join(cached_ors)})
                 expired <- cached %>%
                         filter(status == "Continuing"
-                               | outbreak_status == "Continuing"
-                               | is.na(outbreak_status)) %>%
+                               | outbreak_status == "Continuing") %>%
                         group_by(outbreak_report) %>%
                         summarise(oldest = min(OR_retrieved)) %>%
                         filter(oldest < Sys.time() - cache_interval) %>%
