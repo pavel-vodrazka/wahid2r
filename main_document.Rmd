@@ -70,7 +70,7 @@ resulting webpages.
 ```
 
 ```{r obtainFormValues}
-form_values <- getDiseaseFormValues(disease = "classical swine fever")
+form_values <- getDiseaseFormValues(disease = "african horse sickness")
 ```
 
 ```{r function-downloadSINF, code=readLines('downloadSINF.R'), echo=FALSE, results='hide'}
@@ -94,10 +94,10 @@ for the range of years speficied.
 
 ```{r getDiseaseSummaries}
 summaries <- getSINF(formValues = form_values
-#                      ,years = 2006
-#                                                      ,countryNames = "Croatia"
-#                                                      ,newDownload = TRUE
-#                      , cacheInterval = "1 min"
+                     ,years = 2005
+                     ,countryNames = "SWZ"
+#                      ,newDownload = TRUE
+#                      ,cacheInterval = "1 min"
 )
 
 # write.csv2(summaries, file = "summaries.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
@@ -138,6 +138,15 @@ outbreak_reports <- getOR(summaries_of_outbreaks)
 # write.csv2(outbreak_reports, file = "outbreak_reports.csv", row.names = FALSE,
 #            na = "", fileEncoding = "UTF-8")
 ```
+
+```{r getAll}
+lapply(values_labels$disease_id_hidden, function(x) {
+        getSINF(diseaseID = x) %>%
+                getSO %>%
+                getOR
+})
+```
+
 
 ```{r examplePlot}
 library(plotGoogleMaps)

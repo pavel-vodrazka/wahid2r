@@ -1,4 +1,5 @@
-parseOR <- function(x) {
+parseOR <- function(nonParsedOR) {
+        x <- nonParsedOR
         if(!all(c("year",
                   "summary_country",
                   "reportid",

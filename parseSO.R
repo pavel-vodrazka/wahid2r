@@ -1,4 +1,5 @@
-parseSO <- function(x) {
+parseSO <- function(nonParsedSO) {
+        x <- nonParsedSO
         if(!all(c("resp") %in% names(x)) |
                    !"response" %in% class(x[["resp"]]))
                 stop ("The argument specified is not a list containing a response object.")
