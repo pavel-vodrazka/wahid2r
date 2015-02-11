@@ -1,35 +1,35 @@
 checkIfwebNotChanged <- function(hashFile = "hashes.rds") {
-        # do file opening with error catching
+        #TODO: do file opening with error catching
         message("Checking whether the OIE WAHID website structure didn't change")
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
         val <- list()
-        resp1 <- GET(url)
-        stop_for_status(resp1)
-        doc1 <- html(resp1, encoding = "UTF-8")
+        resp1 <- httr::GET(url)
+        httr::stop_for_status(resp1)
+        doc1 <- rvest::html(resp1, encoding = "UTF-8")
         val[["disease form attributes"]] <- doc1 %>%
-                html_nodes("#diseaseform") %>%
-                html_attrs %>%
-                digest(algo = "md5")
+                rvest::html_nodes("#diseaseform") %>%
+                rvest::html_attrs %>%
+                digest::digest(algo = "md5")
         val[["diseaseform scripts"]] <- doc1 %>%
-                html_nodes("#diseaseform script") %>%
-                digest(algo = "md5")
+                rvest::html_nodes("#diseaseform script") %>%
+                digest::digest(algo = "md5")
         val[["diseaseform inputs"]] <- doc1 %>%
-                html_nodes("#diseaseform input") %>%
-                digest(algo = "md5")
+                rvest::html_nodes("#diseaseform input") %>%
+                digest::digest(algo = "md5")
         val[["diseaseform selects' attributes"]] <- doc1 %>%
-                html_nodes("select") %>%
-                html_attrs %>%
-                digest(algo = "md5")
-        resp2 <- GET(paste0(url, "/listoutbreak"))
-        stop_for_status(resp2)
-        doc2 <- html(resp2, encoding = "UTF-8")
+                rvest::html_nodes("select") %>%
+                rvest::html_attrs %>%
+                digest::digest(algo = "md5")
+        resp2 <- httr::GET(paste0(url, "/listoutbreak"))
+        httr::stop_for_status(resp2)
+        doc2 <- rvest::html(resp2, encoding = "UTF-8")
         val[["outbreakreport form attributes"]] <- doc2 %>%
-                html_nodes("form[name='outbreakreport']") %>%
-                html_attrs %>%
-                digest(algo = "md5")
+                rvest::html_nodes("form[name='outbreakreport']") %>%
+                rvest::html_attrs %>%
+                digest::digest(algo = "md5")
         val[["outbreakreport form inputs"]] <- doc2 %>%
-                html_nodes("form[name='outbreakreport'] input") %>%
-                digest(algo = "md5")
+                rvest::html_nodes("form[name='outbreakreport'] input") %>%
+                digest::digest(algo = "md5")
 
         if(file.exists(hashFile)) {
                 saved <- readRDS(hashFile)
