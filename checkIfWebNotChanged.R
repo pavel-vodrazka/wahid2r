@@ -1,37 +1,43 @@
 checkIfwebNotChanged <- function(hashFile = "hashes.rds") {
-        #TODO: do file opening with error catching
-        message("Checking whether the OIE WAHID website structure didn't change")
+        message("Checking whether the OIE WAHID website structure didn't change:")
         url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
         val <- list()
-        resp1 <- httr::GET(url)
-        httr::stop_for_status(resp1)
-        doc1 <- rvest::html(resp1, encoding = "UTF-8")
+        resp1 <- GET(url)
+        stop_for_status(resp1)
+        doc1 <- html(resp1, encoding = "UTF-8")
         val[["disease form attributes"]] <- doc1 %>%
-                rvest::html_nodes("#diseaseform") %>%
-                rvest::html_attrs %>%
-                digest::digest(algo = "md5")
+                html_nodes("#diseaseform") %>%
+                html_attrs %>%
+                digest(algo = "md5")
         val[["diseaseform scripts"]] <- doc1 %>%
-                rvest::html_nodes("#diseaseform script") %>%
-                digest::digest(algo = "md5")
+                html_nodes("#diseaseform script") %>%
+                digest(algo = "md5")
         val[["diseaseform inputs"]] <- doc1 %>%
-                rvest::html_nodes("#diseaseform input") %>%
-                digest::digest(algo = "md5")
+                html_nodes("#diseaseform input") %>%
+                digest(algo = "md5")
         val[["diseaseform selects' attributes"]] <- doc1 %>%
-                rvest::html_nodes("select") %>%
-                rvest::html_attrs %>%
-                digest::digest(algo = "md5")
-        resp2 <- httr::GET(paste0(url, "/listoutbreak"))
-        httr::stop_for_status(resp2)
-        doc2 <- rvest::html(resp2, encoding = "UTF-8")
+                html_nodes("select") %>%
+                html_attrs %>%
+                digest(algo = "md5")
+        resp2 <- GET(paste0(url, "/listoutbreak"))
+        stop_for_status(resp2)
+        doc2 <- html(resp2, encoding = "UTF-8")
         val[["outbreakreport form attributes"]] <- doc2 %>%
-                rvest::html_nodes("form[name='outbreakreport']") %>%
-                rvest::html_attrs %>%
-                digest::digest(algo = "md5")
+                html_nodes("form[name='outbreakreport']") %>%
+                html_attrs %>%
+                digest(algo = "md5")
         val[["outbreakreport form inputs"]] <- doc2 %>%
-                rvest::html_nodes("form[name='outbreakreport'] input") %>%
-                digest::digest(algo = "md5")
+                html_nodes("form[name='outbreakreport'] input") %>%
+                digest(algo = "md5")
 
-        if(file.exists(hashFile)) {
+        hash_exists <- file.exists(hashFile)
+        hash_readable <- file.access(hashFile, 4) == 0
+        hash_writable <- file.access(hashFile, 2) == 0
+        hash_creatable <- file.access(dirname(hashFile), 2) == 0
+        hash_in_local <- dirname(hashFile) == "."
+
+        if(all(hash_exists,
+               hash_readable)) {
                 saved <- readRDS(hashFile)
                 comparison <- mapply(identical, val, saved)
                 if(!all(comparison)) {
@@ -45,15 +51,41 @@ checkIfwebNotChanged <- function(hashFile = "hashes.rds") {
                         return(FALSE)
                 } else {
                         web_not_changed <<- TRUE
-                        message("... OK")
+                        message("- OK.")
                         return(TRUE)
                 }
         } else {
                 warning("Impossible to check whether the OIE WAHID website ",
-                        "has not changed (hash file not present, creating ",
-                        "a new one from the current state of the site).",
+                        "has not changed (hash file not ",
+                        if(!hash_exists) "present" else "readable",
+                        ").",
                         immediate. = TRUE)
-                saveRDS(val, hashFile)
+                if(hash_exists) {
+                        # suppose that when not readable, also not writable
+                        if(!hash_in_local) {
+                                message("- Creating a new hash file from ",
+                                        "the current state of the site ",
+                                        "in current directory.")
+                                saveRDS(val, basename(hashFile))
+                        } else {
+                                message("- Hash file not written.")
+                        }
+                } else {
+                        if(hash_creatable) {
+                                message("- Creating a new hash file from the ",
+                                        "current state of the site.")
+                                saveRDS(val, hashFile)
+                        } else {
+                                if(!hash_in_local) {
+                                        message("- Creating a new hash file from ",
+                                                "the current state of the site ",
+                                                "in current directory.")
+                                        saveRDS(val, basename(hashFile))
+                                } else {
+                                        message("- Hash file not written.")
+                                }
+                        }
+                }
                 web_not_changed <<- TRUE
                 return(TRUE)
         }
