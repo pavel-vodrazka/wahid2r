@@ -70,7 +70,7 @@ resulting webpages.
 ```
 
 ```{r obtainFormValues}
-form_values <- getDiseaseFormValues(disease = "african horse sickness")
+form_values <- getDiseaseFormValues(disease = "acarapisosis")
 ```
 
 ```{r function-downloadSINF, code=readLines('downloadSINF.R'), echo=FALSE, results='hide'}
@@ -94,10 +94,10 @@ for the range of years speficied.
 
 ```{r getDiseaseSummaries}
 summaries <- getSINF(formValues = form_values
-                     ,years = 2005
-                     ,countryNames = "SWZ"
+#                      ,years = 2005
+#                      ,countryNames = "SWZ"
 #                      ,newDownload = TRUE
-#                      ,cacheInterval = "1 min"
+                     ,cacheInterval = "1 min"
 )
 
 # write.csv2(summaries, file = "summaries.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")

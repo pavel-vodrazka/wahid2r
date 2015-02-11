@@ -227,7 +227,8 @@ getSINF <- function(formValues,
         } else {
                 not_cached <- years[!years %in% cached[["year"]]]
                 expired <- cached %>%
-                        filter(status == "Continuing") %>%
+                        filter(status == "Continuing"
+                               | is.na(status) & year == year(Sys.time())) %>%
                         group_by(year) %>%
                         summarise(oldest = min(SINF_retrieved)) %>%
                         filter(oldest < Sys.time() - cache_interval) %>%
