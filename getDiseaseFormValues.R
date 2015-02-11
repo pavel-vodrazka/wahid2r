@@ -3,13 +3,17 @@ getDiseaseFormValues <- function(disease = character(),
                                  setGlobalOnly = FALSE,
                                  newDownload = FALSE,
                                  file = "diseaseFormValues.rds") {
-        message("Getting the form values for disease(s) entered")
+        message("Getting the form values for disease(s) entered:")
+        cache_exists <- file.exists(file)
+        cache_readable <- file.access(file, 4) == 0
+        cache_writable <- file.access(file, 2) == 0
+        cache_creatable <- file.access(dirname(file), 2) == 0
+        cache_in_local <- dirname(file) == "."
         if(!exists("web_not_changed"))
                 web_not_changed <- checkIfwebNotChanged()
-        #         if(!web_not_changed)
-        #                 warning("The OIE WAHID website has changed, the following may not work.",
-        #                         immediate. = TRUE)
-        if(file.exists(file) & !newDownload) {
+        if(all(cache_exists,
+               cache_readable,
+               !newDownload)) {
                 current_year <- as.integer(format(Sys.Date(), "%Y"))
                 cached <- readRDS(file)
                 values_labels <<- cached[["values_labels"]]
@@ -19,8 +23,10 @@ getDiseaseFormValues <- function(disease = character(),
                 if(!all(range(years_available) == c(2005, current_year)))
                         newDownload <- TRUE
         }
-        if((!file.exists(file)) | newDownload) {
-                message("... downloading")
+        if(any(!cache_exists,
+               !cache_readable,
+               newDownload)) {
+                message("- Downloading.")
                 url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
                 resp <- GET(url)
                 stop_for_status(resp)
@@ -54,11 +60,26 @@ getDiseaseFormValues <- function(disease = character(),
                         filter(disease_id_hidden != -999L) %>%
                         arrange(label)
                 class(values_labels) <- c(class(values_labels), "OIE diseaseform values_labels")
-                saveRDS(list(values_labels = values_labels,
-                             years_available = years_available),
-                        file)
+                if(any(all(cache_exists,
+                           cache_writable),
+                       cache_creatable)) {
+                        message("- Writing cache.")
+                        saveRDS(list(values_labels = values_labels,
+                                     years_available = years_available),
+                                file)
+                } else {
+                        if(!cache_in_local) {
+                                message("- Writing cache file in current directory.")
+                                saveRDS(list(values_labels = values_labels,
+                                             years_available = years_available),
+                                        basename(file))
+                        } else {
+                                message("- Cache not written.")
+                        }
+
+                }
         } else {
-                message("... using cached data")
+                message("- Using cached data.")
         }
         if(setGlobalOnly)
                 return(invisible(NULL))
@@ -71,7 +92,7 @@ getDiseaseFormValues <- function(disease = character(),
                                                    "OIE diseaseform values_labels")
         }
         if(printOnly) {
-                message("Values for submitting the \"diseaseform\" on the OIE WAHID ",
+                message("\nValues for submitting the \"diseaseform\" on the OIE WAHID ",
                         "\"Summary of Immediate notifications and Follow-ups\" ",
                         "webpage\n[http://www.oie.int/wahis_2/public/wahid.php/",
                         "Diseaseinformation/Immsummary)]:\n")
