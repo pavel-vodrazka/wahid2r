@@ -2,19 +2,25 @@ getCountries <- function(printOnly = FALSE,
                          setGlobalOnly = FALSE,
                          newDownload = FALSE,
                          file = "countriesAvailable.rds") {
-        message("Getting available countries")
+        message("Getting available countries:")
+        cache_exists <- file.exists(file)
+        cache_readable <- file.access(file, 4) == 0
+        cache_writable <- file.access(file, 2) == 0
+        cache_creatable <- file.access(dirname(file), 2) == 0
+        cache_in_local <- dirname(file) == "."
         if(!exists("web_not_changed"))
                 web_not_changed <- checkIfwebNotChanged()
-        #         if(!web_not_changed)
-        #                 warning("The OIE WAHID website has changed, the following may not work.",
-        #                         immediate. = TRUE)
-        if(file.exists(file) & !newDownload) {
+        if(all(cache_exists,
+               cache_readable,
+               !newDownload)) {
                 countries_available <<- readRDS(file)
                 if(!"OIE searchform countries" %in% class(countries_available))
                         newDownload <- TRUE
         }
-        if(!file.exists(file) | newDownload) {
-                message("... downloading")
+        if(any(!cache_exists,
+               !cache_readable,
+               newDownload)) {
+                message("- Downloading.")
                 url <- "http://www.oie.int/wahis_2/public/wahid.php/Countryinformation/Countryhome"
                 resp <- GET(url)
                 stop_for_status(resp)
@@ -51,18 +57,30 @@ getCountries <- function(printOnly = FALSE,
                                          ISO3:GEO3))
                 class(countries) <- c(class(countries), "OIE searchform countries")
                 countries_available <<- countries
-                saveRDS(countries_available, file)
+                if(any(all(cache_exists,
+                           cache_writable),
+                       cache_creatable)) {
+                        message("- Writing cache.")
+                        saveRDS(countries_available, file)
+                } else {
+                        if(!cache_in_local) {
+                                message("- Writing cache file in current directory.")
+                                saveRDS(countries_available, basename(file))
+                        } else {
+                                message("- Cache not written.")
+                        }
+                }
         } else {
-                message("... using cached data")
+                message("- Using cached data.")
         }
         if(setGlobalOnly)
                 return(invisible(NULL))
         if(printOnly) {
-                message("Country codes and names available on the OIE WAHID website:\n")
-                message(paste0(names(countries), collapse = ", "))
-                message(paste(apply(countries, 1, paste, collapse = ", "),
+                message("\nCountry codes and names available on the OIE WAHID website:\n")
+                message(paste0(names(countries_available), collapse = ", "))
+                message(paste(apply(countries_available, 1, paste, collapse = ", "),
                               collapse = "\n"))
                 return(invisible(NULL))
         }
-        return(countries)
+        return(countries_available)
 }
