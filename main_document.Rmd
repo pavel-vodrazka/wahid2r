@@ -44,13 +44,6 @@ footer:
 +--------------------------------------------------------------+
 ```
 ```{r loadPackages, message=FALSE}
-library(rvest)
-library(httr)
-library(dplyr)
-library(magrittr)
-library(digest)
-library(rworldmap)
-library(lubridate)
 library(wahid2r)
 ```
 
