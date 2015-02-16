@@ -51,9 +51,7 @@ library(magrittr)
 library(digest)
 library(rworldmap)
 library(lubridate)
-```
-
-```{r function-checkIfwebNotChanged, code=readLines('checkIfWebNotChanged.R'), echo=FALSE, results='hide'}
+library(wahid2r)
 ```
 
 We first need to be able to programmatically fill the form on the page and download 
@@ -66,23 +64,9 @@ contains a function `summaries_fun` that is created programmatically from the
 page source code and that will serve to submit that form and retrieve the 
 resulting webpages.
 
-```{r function-getDiseaseFormValues, code=readLines('getDiseaseFormValues.R'), echo=FALSE, results='hide'}
-```
 
 ```{r obtainFormValues}
 form_values <- getDiseaseFormValues(disease = "acarapisosis")
-```
-
-```{r function-downloadSINF, code=readLines('downloadSINF.R'), echo=FALSE, results='hide'}
-```
-
-```{r function-parseSINF, code=readLines('parseSINF.R'), echo=FALSE, results='hide'}
-```
-
-```{r function-getCountries, code=readLines('getCountries.R'), echo=FALSE, results='hide'}
-```
-
-```{r function-getSINF, code=readLines('getSINF.R'), echo=FALSE, results='hide'}
 ```
 
 By inspecting the page source and the forms we figure out the necessary 
@@ -107,30 +91,12 @@ Now we will parse the html of the pages stored in the `summaries` object.
 
 [//]: # (Finish here)
 
-```{r function-downloadSO, code=readLines('downloadSO.R'), echo=FALSE, results='hide'}
-```
-
-```{r function-parseSO, code=readLines('parseSO.R'), echo=FALSE, results='hide'}
-```
-
-```{r function-getSO, code=readLines('getSO.R'), echo=FALSE, results='hide'}
-```
-
 ```{r getSO}
 summaries_of_outbreaks <- getSO(summaries)
 # write.csv2(summaries_of_outbreaks, file = "summaries_of_outbreaks.csv",
 #             row.names = FALSE,
 #             na = "",
 #             fileEncoding = "UTF-8")
-```
-
-```{r function-downloadOR, code=readLines('downloadOR.R'), echo=FALSE, results='hide'}
-```
-
-```{r function-parseOR, code=readLines('parseOR.R'), echo=FALSE, results='hide'}
-```
-
-```{r function-getOR, code=readLines('getOR.R'), echo=FALSE, results='hide'}
 ```
 
 ```{r getOutbreakReports}
