@@ -6,6 +6,7 @@
 #' @return A list.
 #' @examples
 #' \dontrun{cache_access("cache.rds")}
+#' @export
 cache_access <- function(cache_path) {
   list(E = file.exists(cache_path),
        R = unname(file.access(cache_path, 4) == 0),
@@ -28,6 +29,7 @@ cache_access <- function(cache_path) {
 #' @return An R object deserialized from the RDS file or \code{NULL}.
 #' @examples
 #' \dontrun{read_cache("cache.rds")}
+#' @export
 read_cache <- function(cache_path) {
   a <- cache_access(cache_path)
   if (all(a$E, a$R)) {
@@ -58,6 +60,7 @@ read_cache <- function(cache_path) {
 #' @return The file path written (a character scalar) or \code{NULL}.
 #' @examples
 #' \dontrun{write_cache(x, "cache.rds")}
+#' @export
 write_cache <- function(x, cache_path) {
   a <- cache_access(cache_path)
   if (!a$E && a$C) {
