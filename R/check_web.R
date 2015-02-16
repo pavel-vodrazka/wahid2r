@@ -59,8 +59,7 @@ check_web <- function(hash_file = "hashes.rds",
     digest(algo = "md5")
   cache <- read_cache(hash_file)
   if (is.null(cache)) {
-    data("hashes", envir = globals)
-    cache <- get("hashes", envir = globals)
+    cache <- hashes
   } else {
     message("- Using cache file saved on ",
             file.info(hash_file)$mtime,
