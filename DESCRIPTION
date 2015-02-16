@@ -1,8 +1,20 @@
 Package: wahid2r
-Title: What the Package Does (one line, title case)
+Title: Scrapes Data on Animal Diseases Occurence from the OIE WAHID Website
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph)
+Authors@R: person("Pavel", "Vodrazka", email = "vodrazka@svujihlava.cz",
+    role = c("aut", "cre"))
+Description: Scrapes data on OIE listed diseases from the OIE WAHID website
+    (http://www.oie.int/wahis_2/public/wahid.php/Wahidhome/Home). Currently,
+    the section "Disease information" is implemented -- Summaries of Immediate
+    notifications and Follow-ups, Summaries of outbreaks, and Outbreak reports.
 Depends: R (>= 3.1.2)
-License: What license is it under?
+License: MIT
 LazyData: true
+Imports:
+    digest (>= 0.6.8),
+    dplyr (>= 0.4.1),
+    httr (>= 0.6.1),
+    lubridate (>= 1.3.3),
+    magrittr (>= 1.5),
+    rvest (>= 0.2.0),
+    rworldmap (>= 1.3-1),
