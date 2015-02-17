@@ -59,7 +59,7 @@ resulting webpages.
 
 
 ```{r obtainFormValues}
-form_values <- get_diseaseform_values(disease = "acarapisosis", new_download = TRUE)
+form_values <- get_diseaseform_values(disease = "acarapisosis")
 ```
 
 By inspecting the page source and the forms we figure out the necessary 

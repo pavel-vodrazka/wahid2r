@@ -67,7 +67,7 @@ check_web <- function(hash_file = "hashes.rds",
   }
   comparison <- mapply(identical, val, cache)
   if (all(comparison)) {
-    assign("web_not_changed", TRUE, globals)
+    globals$web_not_changed <- TRUE
     message("- OK.")
     return(TRUE)
   } else {
@@ -77,7 +77,7 @@ check_web <- function(hash_file = "hashes.rds",
             "\nThings that have changed are:\n- ",
             paste0(not_equal, collapse = "\n- "),
             immediate. = TRUE)
-    assign("web_not_changed", FALSE, globals)
+    globals$web_not_changed <- FALSE
     if (write_cache_if_different) {
       write_cache(val, hash_file)
     }
