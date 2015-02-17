@@ -1,3 +1,47 @@
+#' Fetches the values used to submit the search form
+#'
+#' Utility function \code{get_diseaseform_values} fetches the values needed for
+#' submitting the initial search form at
+#' \href{http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary}{WAHID
+#' --> Disease information --> Immediate notifications and Follow-ups} -- the
+#' \emph{disease_id_hidden} and \emph{disease_type_hidden} for a name of the
+#' disease entered. It also fetches the range of years available.
+#'
+#' The function utilizes a cache that is as a default supplied as a dataset
+#' \code{data(diseaseform_values)}, but optionally a path to a cache file can be
+#' supplied.
+#'
+#' @section Side effects: This function sets the variables \code{values_labels}
+#'   containing the form value for all diseases available and
+#'   \code{years_available} in the \code{globals} environment that are utilized
+#'   by other functions from the package. As mentioned above, it also optionally
+#'   writes a cache file at the location specified by the user.
+#'
+#' @param disease A character scalar. The disease entered is matched against the
+#'   form labels by the \code{grep} function. It is case insensitive and can be
+#'   entered partially.
+#' @param print_only A logical scalar. When \code{TRUE}, the result is printed
+#'   to the console and \code{NULL} returned invisibly.
+#' @param set_global_only A logical scalar. When \code{TRUE}, \code{NULL} is
+#'   returned invisibly.
+#' @param new_download A logical scalar. If \code{TRUE}, the cached data (either
+#'   supplied with the package or in the \code{file} argument) are ignored and
+#'   the data are fetched from the web. It is set to \code{TRUE} inside the
+#'   function if \code{years_available} in the cached data do not extend to
+#'   current year.
+#' @param file A character scalar. If the file specified exists, it is used
+#'   instead of the dataset supplied with the package. If \code{new_download} is
+#'   \code{TRUE}, the cache is written to the file specified.
+#' @return An object of class \code{c(tbl, tbl.df, data.frame, diseaseform)}
+#'   containing values for all diseases available if \code{disease} was not
+#'   specified, or containing exactly one row when \code{disease} was specified
+#'   and matched.
+#' @return \code{NULL} (invisibly) when \code{set_global_only} is set to
+#'   \code{TRUE} or (invisibly) when \code{print_only} is set to \code{TRUE} or
+#'   (with a warning) when \code{disease} does not give exactly one match.
+#' @seealso \code{\link{read_cache}}, \code{\link{write_cache}}
+#' @examples
+#' \dontrun{get_diseaseform_values(disease = "african swine fever")}
 #' @importFrom lubridate year
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
@@ -8,6 +52,7 @@
 #' @importFrom dplyr data_frame
 #' @importFrom dplyr filter
 #' @importFrom dplyr arrange
+#' @importFrom magrittr %<>%
 #' @export
 get_diseaseform_values <- function(disease = character(),
                                    print_only = FALSE,
@@ -75,8 +120,7 @@ get_diseaseform_values <- function(disease = character(),
                                         disease_type_hidden = dth) %>%
       filter(disease_id_hidden != -999L) %>%
       arrange(label)
-    class(globals$values_labels) <- append(class(globals$values_labels),
-                                           "diseaseform")
+    class(globals$values_labels) %<>% append("diseaseform")
     write_cache(list(values_labels = globals$values_labels,
                      years_available = globals$years_available),
                 file)
@@ -86,13 +130,12 @@ get_diseaseform_values <- function(disease = character(),
     values_labels_filtered <- globals$values_labels[grep(disease,
                                                          globals$values_labels$label,
                                                          ignore.case = TRUE),]
-    class(values_labels_filtered) <- append(class(values_labels_filtered),
-                                            "diseaseform")
+    class(values_labels_filtered) %<>% append("diseaseform")
   }
   if(print_only) {
     message("\nValues for submitting the \"diseaseform\" on the OIE WAHID ",
             "\"Summary of Immediate notifications and Follow-ups\" ",
-            "webpage\n[http://www.oie.int/wahis_2/public/wahid.php/",
+            "webpage [http://www.oie.int/wahis_2/public/wahid.php/",
             "Diseaseinformation/Immsummary)]:\n")
     if(length(disease) > 0) {
       message("Entered search for disease: \"", disease, "\"\n")
@@ -111,16 +154,20 @@ get_diseaseform_values <- function(disease = character(),
       message(paste(apply(globals$values_labels, 1, paste, collapse = "\t"),
                     collapse = "\n"))
     }
-    message("\nYears available:\n")
-    message(paste0(range(globals$years_available), collapse = " - "))
+    message("\nYears available: ",
+            paste0(range(globals$years_available), collapse = " - "),
+            "\n")
     return(invisible(NULL))
   } else {
     if(length(disease > 0)) {
-      if(nrow(values_labels_filtered) > 1)
+      if(nrow(values_labels_filtered) > 1) {
         warning("Your search for pattern \"",
                 disease,
-                "\" returned more than one disease.",
+                "\" returned more than one disease:\n  - ",
+                paste(values_labels_filtered$label, collapse = "\n  - "),
                 immediate. = TRUE)
+        return(NULL)
+      }
       if(nrow(values_labels_filtered) == 0) {
         warning("Your search for pattern \"",
                 disease,
