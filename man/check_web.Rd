@@ -7,9 +7,11 @@
 check_web(hash_file = "hashes.rds", write_cache_if_different = FALSE)
 }
 \arguments{
-\item{hash_file}{A character scalar.}
+\item{hash_file}{A character scalar. If the file specified exists, it is used
+instead of the dataset supplied with the package.}
 
-\item{write_chache_if_different}{A logical scalar.}
+\item{write_chache_if_different}{A logical scalar. If \code{TRUE}, current
+hashes are written to \code{hash_file}.}
 }
 \value{
 \code{TRUE} If critical features of the web have not changed compared
@@ -28,7 +30,16 @@ changed. The cache is as a default supplied as a dataset \code{data(hashes)},
 but optionally a path to a cache file can be supplied, and also an option to
 write such file when the hashes are not identical.
 }
+\section{Side effects}{
+ This function sets the variable \code{web_not_changed}
+  in the \code{globals} environment that is utilized by other functions from
+  the package. As mentioned above, it also optionally writes a cache file at
+  the location specified by the user.
+}
 \examples{
 \dontrun{check_web()}
+}
+\seealso{
+\code{\link{read_cache}}, \code{\link{write_cache}}
 }
 

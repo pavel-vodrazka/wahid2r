@@ -10,11 +10,19 @@
 #' but optionally a path to a cache file can be supplied, and also an option to
 #' write such file when the hashes are not identical.
 #'
-#' @param hash_file A character scalar.
-#' @param write_chache_if_different A logical scalar.
+#' @section Side effects: This function sets the variable \code{web_not_changed}
+#'   in the \code{globals} environment that is utilized by other functions from
+#'   the package. As mentioned above, it also optionally writes a cache file at
+#'   the location specified by the user.
+#'
+#' @param hash_file A character scalar. If the file specified exists, it is used
+#'   instead of the dataset supplied with the package.
+#' @param write_chache_if_different A logical scalar. If \code{TRUE}, current
+#'   hashes are written to \code{hash_file}.
 #' @return \code{TRUE} If critical features of the web have not changed compared
 #'   to the cached state.
 #' @return \code{FALSE} If critical features of the the web have changed.
+#' @seealso \code{\link{read_cache}}, \code{\link{write_cache}}
 #' @examples
 #' \dontrun{check_web()}
 #' @importFrom httr GET
