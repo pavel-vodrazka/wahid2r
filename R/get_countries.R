@@ -1,5 +1,46 @@
+#' Fetches the countries available for submitting the search form
 #'
-
+#' Utility function \code{get_countries} fetches the countries available for
+#' getting the summaries and outbreak reports at
+#' \href{http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary}{WAHID
+#' --> Disease information --> Immediate notifications and Follow-ups}.
+#'
+#' The function utilizes a cache that is as a default supplied as a dataset
+#' \code{data(countries_available)}, but optionally a path to a cache file can
+#' be supplied. The fields obtained from the OIE website (\code{ISO3},
+#' \code{OIE_name}, \code{OIE_region}) are supplemented with \code{ADMIN},
+#' \code{REGION}, \code{continent}, \code{GEO3major}, and \code{GEO3} from the
+#' dataset \code{countryRegions} from \code{rvest} package (matched by
+#' \code{ISO3}) to facilitate text-based search and different regionalization.
+#'
+#' @section Side effects: This function sets the variable
+#'   \code{countries_available} in the \code{globals} environment that are
+#'   utilized by other functions from the package. As mentioned above, it also
+#'   optionally writes a cache file at the location specified by the user.
+#'
+#' @param print_only A logical scalar. When \code{TRUE}, the result is printed
+#'   to the console and \code{NULL} returned invisibly.
+#' @param set_global_only A logical scalar. When \code{TRUE}, \code{NULL} is
+#'   returned invisibly.
+#' @param new_download A logical scalar. If \code{TRUE}, the cached data (either
+#'   supplied with the package or in the \code{file} argument) are ignored and
+#'   the data are fetched from the web.
+#' @param file A character scalar. If the file specified exists, it is used
+#'   instead of the dataset supplied with the package. If \code{new_download} is
+#'   \code{TRUE}, the cache is written to the file specified.
+#'
+#' @return An object of class \code{c("tbl", "tbl_df", "data.frame",
+#'   "countries")} containing records for all countries available on the OIE
+#'   WAHID website.
+#' @return \code{NULL} (invisibly) when \code{set_global_only} is set to
+#'   \code{TRUE} or (invisibly) when \code{print_only} is set to \code{TRUE}.
+#'
+#' @seealso \code{\link{read_cache}}, \code{\link{write_cache}},
+#'   \code{\link[rworldmap]{countryRegions}}
+#'
+#' @examples
+#' \dontrun{get_countries()}
+#'
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
 #' @importFrom rvest html
