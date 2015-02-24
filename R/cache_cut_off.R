@@ -3,7 +3,23 @@
 #' Utility function \code{cache_cut_off} is used by other functions from the
 #' package for deciding expired records in cache.
 #'
+#' @param x A \code{numeric}, \code{logical}, \code{character} scalar or
+#'   \code{\link[base]{POSIXct}}, \code{\link[base]{POSIXlt}},
+#'   \code{\link[base]{Date}}, or \code{\link[lubridate]{duration}} giving the
+#'   period back in time or date.
+#' @param default Default period back in time
+#'   (\code{\link[lubridate]{duration}}) used when \code{x} is \code{NULL},
+#'   \code{NA}, \code{Inf}, or otherwise invalid.
 #'
+#' @return A \code{\link[base]{POSIXct}} object giving the precise point in time
+#'   (cut-off).
+#'
+#' @examples
+#' cache_cut_off(1)
+#' cache_cut_off(FALSE)
+#' cache_cut_off(TRUE)
+#' cache_cut_off("1 day")
+#' cache_cut_off("2015-01-01")
 #'
 #' @importFrom lubridate duration
 #' @export
@@ -17,7 +33,6 @@ message_default <- function(x, default) {
   Sys.time() - default
 }
 
-#' @describeIn cache_cut_off
 #' @export
 cache_cut_off.NULL <- function(x, default = duration(1, "day")) {
   message_default(NULL, default)
@@ -113,6 +128,7 @@ cache_cut_off.character <- function(x, default = duration(1, "day")) {
         u <- gsub("(^[0-9]*[.]?[0-9]*)([[:space:]]*)(.*)", "\\L\\3",
                   x, perl = TRUE)
         tryCatch({
+          if (is.na(l)) stop("invalid format")
           Sys.time() - duration(l, u)
         },
         error = function(e) {
@@ -128,7 +144,6 @@ cache_cut_off.character <- function(x, default = duration(1, "day")) {
   ret
 }
 
-#' @describeIn cache_cut_off
 #' @export
 cache_cut_off.default <- function(x, default = duration(1, "day")) {
   message("- Argument to cache_cut_off is ", capture.output(str(x)),

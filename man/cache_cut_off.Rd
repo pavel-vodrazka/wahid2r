@@ -4,18 +4,14 @@
 \alias{cache_cut_off}
 \alias{cache_cut_off.Date}
 \alias{cache_cut_off.Duration}
-\alias{cache_cut_off.NULL}
 \alias{cache_cut_off.POSIXct}
 \alias{cache_cut_off.POSIXlt}
 \alias{cache_cut_off.character}
-\alias{cache_cut_off.default}
 \alias{cache_cut_off.logical}
 \alias{cache_cut_off.numeric}
 \title{Sets the cut-off point of expired records in cache}
 \usage{
 cache_cut_off(x, default = duration(1, "day"))
-
-\method{cache_cut_off}{NULL}(x, default = duration(1, "day"))
 
 \method{cache_cut_off}{numeric}(x, default = duration(1, "day"))
 
@@ -30,8 +26,20 @@ cache_cut_off(x, default = duration(1, "day"))
 \method{cache_cut_off}{Duration}(x, default = duration(1, "day"))
 
 \method{cache_cut_off}{character}(x, default = duration(1, "day"))
+}
+\arguments{
+\item{x}{A \code{numeric}, \code{logical}, \code{character} scalar or
+\code{\link[base]{POSIXct}}, \code{\link[base]{POSIXlt}},
+\code{\link[base]{Date}}, or \code{\link[lubridate]{duration}} giving the
+period back in time or date.}
 
-\method{cache_cut_off}{default}(x, default = duration(1, "day"))
+\item{default}{Default period back in time
+  (\code{\link[lubridate]{duration}}) used when \code{x} is \code{NULL},
+  \code{NA}, \code{Inf}, or otherwise invalid.}
+}
+\value{
+A \code{\link[base]{POSIXct}} object giving the precise point in time
+  (cut-off).
 }
 \description{
 Utility function \code{cache_cut_off} is used by other functions from the
@@ -39,8 +47,6 @@ package for deciding expired records in cache.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{NULL}: 
-
 \item \code{numeric}: 
 
 \item \code{logical}: 
@@ -54,7 +60,12 @@ package for deciding expired records in cache.
 \item \code{Duration}: 
 
 \item \code{character}: 
-
-\item \code{default}: 
 }}
+\examples{
+cache_cut_off(1)
+cache_cut_off(FALSE)
+cache_cut_off(TRUE)
+cache_cut_off("1 day")
+cache_cut_off("2015-01-01")
+}
 
