@@ -26,11 +26,11 @@ function if \code{years_available} in the cached data do not extend to
 current year.}
 
 \item{file}{A character scalar. If the file specified exists, it is used
-instead of the dataset supplied with the package. If \code{new_download} is
-\code{TRUE}, the cache is written to the file specified.}
+  instead of the dataset supplied with the package. If \code{new_download} is
+  \code{TRUE}, the cache is written to the file specified.}
 }
 \value{
-An object of class \code{c(tbl, tbl.df, data.frame, diseaseform)}
+An object of class \code{c("tbl", "tbl_df", "data.frame", "diseaseform")}
   containing values for all diseases available if \code{disease} was not
   specified, or containing exactly one row when \code{disease} was specified
   and matched.

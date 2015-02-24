@@ -32,16 +32,20 @@
 #' @param file A character scalar. If the file specified exists, it is used
 #'   instead of the dataset supplied with the package. If \code{new_download} is
 #'   \code{TRUE}, the cache is written to the file specified.
-#' @return An object of class \code{c(tbl, tbl.df, data.frame, diseaseform)}
+#'
+#' @return An object of class \code{c("tbl", "tbl_df", "data.frame", "diseaseform")}
 #'   containing values for all diseases available if \code{disease} was not
 #'   specified, or containing exactly one row when \code{disease} was specified
 #'   and matched.
 #' @return \code{NULL} (invisibly) when \code{set_global_only} is set to
 #'   \code{TRUE} or (invisibly) when \code{print_only} is set to \code{TRUE} or
 #'   (with a warning) when \code{disease} does not give exactly one match.
+#'
 #' @seealso \code{\link{read_cache}}, \code{\link{write_cache}}
+#'
 #' @examples
 #' \dontrun{get_diseaseform_values(disease = "african swine fever")}
+#'
 #' @importFrom lubridate year
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
