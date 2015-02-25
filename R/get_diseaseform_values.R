@@ -63,8 +63,8 @@ get_diseaseform_values <- function(disease = character(),
                                    set_global_only = FALSE,
                                    new_download = FALSE,
                                    file = "diseaseform_values.rds") {
-  if (!exists("web_not_changed", where = globals)) {
-    assign("web_not_changed", check_web(), globals)
+  if (!exists("web_not_changed", where = globals, inherits = FALSE)) {
+    globals$web_not_changed <- check_web()
   }
   message("Getting the form values for disease(s) entered:")
   if (!new_download) {
