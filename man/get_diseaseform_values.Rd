@@ -37,7 +37,7 @@ An object of class \code{c("tbl", "tbl_df", "data.frame", "diseaseform")}
 
 \code{NULL} (invisibly) when \code{set_global_only} is set to
   \code{TRUE} or (invisibly) when \code{print_only} is set to \code{TRUE} or
-  (with a warning) when \code{disease} does not give exactly one match.
+  (with a message) when \code{disease} does not give exactly one match.
 }
 \description{
 Utility function \code{get_diseaseform_values} fetches the values needed for

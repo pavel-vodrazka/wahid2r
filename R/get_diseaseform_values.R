@@ -39,7 +39,7 @@
 #'   and matched.
 #' @return \code{NULL} (invisibly) when \code{set_global_only} is set to
 #'   \code{TRUE} or (invisibly) when \code{print_only} is set to \code{TRUE} or
-#'   (with a warning) when \code{disease} does not give exactly one match.
+#'   (with a message) when \code{disease} does not give exactly one match.
 #'
 #' @seealso \code{\link{read_cache}}, \code{\link{write_cache}}
 #'
@@ -165,18 +165,16 @@ get_diseaseform_values <- function(disease = character(),
   } else {
     if(length(disease > 0)) {
       if(nrow(values_labels_filtered) > 1) {
-        warning("Your search for pattern \"",
+        message("- Your search for pattern \"",
                 disease,
                 "\" returned more than one disease:\n  - ",
-                paste(values_labels_filtered$label, collapse = "\n  - "),
-                immediate. = TRUE)
+                paste(values_labels_filtered$label, collapse = "\n  - "))
         return(NULL)
       }
       if(nrow(values_labels_filtered) == 0) {
-        warning("Your search for pattern \"",
+        message("- Your search for pattern \"",
                 disease,
-                "\" returned no disease.",
-                immediate. = TRUE)
+                "\" returned no disease.")
         return(NULL)
       }
       return(values_labels_filtered)
