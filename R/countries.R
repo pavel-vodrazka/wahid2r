@@ -126,3 +126,54 @@ get_countries <- function(print_only = FALSE,
   }
   return(countries)
 }
+
+#' @export
+match_countries <- function(x, fields = "all", select = "ISO3") {
+  UseMethod("match_countries")
+}
+
+#' @export
+match_countries.default <- function(x, ...) {
+  message("- Function match_countries(): no method for ",
+          capture.output(str(x)), ".")
+  return(NULL)
+}
+
+#' @export
+match_countries.character <- function(x, fields = "all", select = "ISO3") {
+  message("- Matching countries entered.")
+  if (length(x) == 0 || is.na(x)) {
+    message("- Function match_countries(): incorrect specification of ",
+            "countries to be matched: ", capture.output(str(x)), ".")
+    return(NULL)
+  }
+  if(!exists("countries_available", where = globals, inherits = FALSE)) {
+    get_countries(set_global_only = TRUE)
+  }
+  if (!is.character(fields)
+      || fields != "all" && !fields %in% names(globals$countries_available)) {
+    message("- Function match_countries(): incorrect specification of ",
+            "fields to be matched against: ", capture.output(str(fields)), ", ",
+            "possible values are: \"all\" or any combination of \"",
+            paste0(names(globals$countries_available), collapse = "\", \""), "\".")
+    return(NULL)
+  }
+  if (fields == "all") fields <- names(globals$countries_available)
+  if (!is.character(select)
+      || select != "all" && !select %in% names(globals$countries_available)) {
+    message("- Function match_countries(): incorrect specification of ",
+            "fields to be selected: ", capture.output(str(select)), ", ",
+            "possible values are: \"all\" or any combination of \"",
+            paste0(names(globals$countries_available), collapse = "\", \""), "\".")
+    return(NULL)
+  }
+  if (length(select) == 1 && select == "all") select <- names(globals$countries_available)
+  pattern <- paste0(x, collapse = "|")
+  indices <- lapply(countries_available[fields], function(x) grep(pattern, x,
+                                                          ignore.case = TRUE))
+  while (length(indices) > 1) {
+    indices <- c(list(union(indices[[1]], indices[[2]])), indices[-c(1, 2)])
+  }
+  countries_available[unlist(indices), select] %>%
+    if (length(select) == 1) .[[1]] else .
+}
