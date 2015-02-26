@@ -183,7 +183,7 @@ match_countries.default <- function(x, ...) {
 #' @export
 match_countries.character <- function(x, fields = "all", select = "ISO3",
                                       simplify = TRUE) {
-  message("- Matching countries entered.")
+  message("Matching countries entered:")
   if (length(x) == 0 || is.na(x)) {
     message("- Function match_countries(): incorrect specification of ",
             "countries to be matched: ", capture.output(str(x)), ".")
