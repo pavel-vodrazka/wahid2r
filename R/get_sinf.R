@@ -94,7 +94,7 @@ get_sinf.diseaseform <- function(x,
       || !exists("years_available", where = globals, inherits = FALSE)) {
     get_diseaseform_values(set_global_only = TRUE)
   }
-  if(!exists("countries_available", where = globals)) {
+  if(!exists("countries_available", where = globals, inherits = FALSE)) {
     get_countries(set_global_only = TRUE)
   }
   if (check_x) {
@@ -151,8 +151,8 @@ get_sinf.diseaseform <- function(x,
             file.info(file)$mtime,
             ", not the original data supplied with the package.")
     if (!identical(sinf(), cache[0, ])) {
-      message("- Cache file ignored because wrong format, using data
-                supplied with the package.")
+      message("- Cache file ignored because wrong format, using data ",
+              "supplied with the package.")
       cache <- sinf()
     }
   }
@@ -210,7 +210,7 @@ get_sinf.diseaseform <- function(x,
   write_cache <- rbind(back_to_cache,
                        summaries) %>%
     arrange(disease_id_hidden, year, country, reportid)
-  class(write_cache) %<>% c(., "sinf")
+  class(write_cache) %<>% append("sinf")
   if(!identical(cache, write_cache)) {
     message("- Writing cache.")
     write_cache(write_cache, file)
