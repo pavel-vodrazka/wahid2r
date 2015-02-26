@@ -13,8 +13,8 @@ download_sinf <- function(id, type, year) {
     get_diseaseform_values(set_global_only = TRUE)
   }
   diseaseID_Type <- paste(id, type, sep = "-")
-  diseaseIDs_Types <- apply(values_labels[, c("disease_id_hidden",
-                                              "disease_type_hidden")],
+  diseaseIDs_Types <- apply(globals$values_labels[, c("disease_id_hidden",
+                                                      "disease_type_hidden")],
                             1,
                             paste0,
                             collapse = "-")
@@ -23,7 +23,7 @@ download_sinf <- function(id, type, year) {
          "and disease_type_hidden (\"",
          diseaseID_Type,
          "\") doesn't exist.")
-  if(!year %in% years_available)
+  if(!year %in% globals$years_available)
     stop("The year entered: ",
          year,
          ") is outside the range of WAHIS reports.")

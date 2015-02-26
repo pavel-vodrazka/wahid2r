@@ -1,5 +1,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom magrittr %<>%
+#' @importFrom magrittr add
 #' @importFrom rvest html
 #' @importFrom rvest html_nodes
 #' @importFrom rvest html_attr
