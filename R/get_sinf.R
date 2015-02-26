@@ -66,6 +66,17 @@ get_sinf.character <- function(x,
 }
 
 #' @importFrom dplyr inner_join
+#' @importFrom dplyr data_frame
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
+#' @importFrom dplyr anti_join
+#' @importFrom dplyr as_data_frame
+#' @importFrom dplyr arrange
+#' @importFrom dplyr distinct_
+#' @importFrom magrittr %>%
+#' @importFrom magrittr %<>%
 #' @export
 get_sinf.diseaseform <- function(x,
                                  years,
@@ -126,6 +137,7 @@ get_sinf.diseaseform <- function(x,
     cc <- globals$countries_available
   }
   entered <- data_frame(disease_id_hidden = x$disease_id_hidden, year = yy)
+  di <- select(x, label)
   message("- Disease: ", di,
           "\n- Country(ies): ", paste0(cc$ISO3, collapse = " "),
           "\n- Year(s): ", deparse(yy))
@@ -188,7 +200,6 @@ get_sinf.diseaseform <- function(x,
     globals$P1counter <- 0
     summaries %<>% lapply(parse_sinf)
     summaries <- do.call("rbind", summaries)
-    di <- select(x, label)
     summaries <- as_data_frame(c(list(disease = rep(as.character(di),
                                                     nrow(summaries))),
                                  as.list(summaries)))
