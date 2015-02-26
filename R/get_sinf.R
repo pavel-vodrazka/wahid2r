@@ -150,6 +150,7 @@ get_sinf.diseaseform <- function(x,
     message("- Using cache file saved on ",
             file.info(file)$mtime,
             ", not the original data supplied with the package.")
+    # if (!all.equal(sinf(), cache[0, ], ignore_col_order = FALSE)) {
     if (!identical(sinf(), cache[0, ])) {
       message("- Cache file ignored because wrong format, using data ",
               "supplied with the package.")
@@ -210,7 +211,7 @@ get_sinf.diseaseform <- function(x,
   write_cache <- rbind(back_to_cache,
                        summaries) %>%
     arrange(disease_id_hidden, year, country, reportid)
-  class(write_cache) %<>% append("sinf")
+  class(write_cache) %<>% append("sinf", after = 0)
   if(!identical(cache, write_cache)) {
     message("- Writing cache.")
     write_cache(write_cache, file)
@@ -225,7 +226,7 @@ get_sinf.diseaseform <- function(x,
   }
   ret %<>% filter(summary_country %in% cc$ISO3)
   ret %<>% distinct_("reportid")
-  class(ret) %<>% append("sinf")
+  class(ret) %<>% append("sinf", after = 0)
   message("- Deduplicated records retrieved: ", nrow(ret), ".")
   return(ret)
 }
@@ -263,7 +264,7 @@ sinf.NULL <- function() {
                   reportid = integer(0))
                   # event_summary_link = character(0),
                   # full_report_link = character(0))
-  class(x) %<>% append("sinf")
+  class(x) %<>% append("sinf", after = 0)
   x
 }
 
@@ -276,7 +277,7 @@ sinf.tbl_df <- function(x, ...) {
     message("- Supplied tbl_df has wrong format: ", capture.output(str(x)), ".")
     return(NULL)
   }
-  class(x) %<>% append("sinf")
+  class(x) %<>% append("sinf", after = 0)
   x
 }
 
