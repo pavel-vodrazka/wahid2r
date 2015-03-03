@@ -164,13 +164,17 @@ get_sinf.diseaseform <- function(x,
   suppressMessages(supplied <- inner_join(SINF, entered))
   message("- Package-supplied records for current request: ",
           nrow(supplied), ".")
-  available <- rbind(cached, supplied) %>%
-    group_by(disease, year, disease_id_hidden, disease_type_hidden, country,
-             status, date, summary_country, reportid) %>%
-    summarize(SINF_retrieved = max(SINF_retrieved)) %>%
-    ungroup %>%
-    select(1:4, 10, 5:9)
-  class(available) %<>% append("sinf", after = 0)
+  if (nrow(cached) == 0 && nrow(supplied) == 0) {
+    available <- sinf()
+  } else {
+    available <- rbind(cached, supplied) %>%
+      group_by(disease, year, disease_id_hidden, disease_type_hidden, country,
+               status, date, summary_country, reportid) %>%
+      summarise(SINF_retrieved = max(SINF_retrieved)) %>%
+      ungroup %>%
+      select(1:4, 10, 5:9)
+    class(available) %<>% append("sinf", after = 0)
+  }
   message("- Total available records for current request: ",
           nrow(available), ".")
   if(new_download) {
