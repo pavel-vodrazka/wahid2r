@@ -321,7 +321,7 @@ sinf.NULL <- function() {
 sinf.tbl_df <- function(x, ...) {
   templ <- sinf.NULL()
   trimmed <- x[0, ]
-  if (!isTRUE(all.equal(templ, trimmed))) {
+  if (!isTRUE(all.equal(templ, trimmed, ignore_col_order = FALSE))) {
     message("- Supplied tbl_df has wrong format:\n\n  ",
             gsub("\\$", "\n  $", capture.output(str(x))), ".")
     return(NULL)
@@ -334,7 +334,7 @@ sinf.tbl_df <- function(x, ...) {
 sinf.sinf <- function(x, ...) {
   templ <- sinf.NULL()
   trimmed <- x[0, ]
-  if (!isTRUE(all.equal(templ, trimmed))) {
+  if (!isTRUE(all.equal(templ, trimmed, ignore_col_order = FALSE))) {
     message("- Supplied sinf has wrong format:\n\n  ",
             gsub("\\$", "\n  $", capture.output(str(x))), ".")
     return(NULL)
