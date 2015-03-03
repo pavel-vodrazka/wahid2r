@@ -5,7 +5,8 @@ get_sinf <- function(x,
                      coutries_match = "all",
                      new_download = FALSE,
                      file = "sinf_cache.rds",
-                     cache_interval = "1 day") {
+                     cache_interval = "1 day",
+                     ...) {
   UseMethod("get_sinf")
 }
 
@@ -34,9 +35,9 @@ get_sinf.numeric <- function(x,
                        years,
                        countries,
                        countries_match,
-                       new_download = FALSE,
-                       file = "sinf_cache.rds",
-                       cache_interval = "1 day",
+                       new_download,
+                       file,
+                       cache_interval,
                        check_x = FALSE)
 }
 
@@ -147,26 +148,38 @@ get_sinf.diseaseform <- function(x,
     message("- Using data supplied with the package.")
     cache <- sinf()
   } else {
-    message("- Using cache file saved on ",
-            file.info(file)$mtime,
-            ", not the original data supplied with the package.")
-    # if (!all.equal(sinf(), cache[0, ], ignore_col_order = FALSE)) {
-    if (!identical(sinf(), cache[0, ])) {
+    if (!isTRUE(all.equal(sinf(), cache[0, ], ignore_col_order = FALSE))) {
       message("- Cache file ignored because wrong format, using data ",
               "supplied with the package.")
       cache <- sinf()
+    } else {
+      message("- Using cache file saved on ",
+              file.info(file)$mtime, ".")
     }
   }
-  if (new_download) message("- Dropping cached SINFS for the disease ",
-                            "and years entered.")
   message("- Total records in cache (all diseases): ", nrow(cache), ".")
   suppressMessages(cached <- inner_join(cache, entered))
   message("- Cached records for current request: ", nrow(cached),".")
+  message("- Total package-supplied records (all diseases): ", nrow(SINF), ".")
+  suppressMessages(supplied <- inner_join(SINF, entered))
+  message("- Package-supplied records for current request: ",
+          nrow(supplied), ".")
+  available <- rbind(cached, supplied) %>%
+    group_by(disease, year, disease_id_hidden, disease_type_hidden, country,
+             status, date, summary_country, reportid) %>%
+    summarize(SINF_retrieved = max(SINF_retrieved)) %>%
+    ungroup %>%
+    select(1:4, 10, 5:9)
+  class(available) %<>% append("sinf", after = 0)
+  message("- Total available records for current request: ",
+          nrow(available), ".")
   if(new_download) {
+    message("- Dropping cached SINFS for the disease ",
+            "and years entered.")
     to_download <- yy
   } else {
-    not_cached <- yy[!yy %in% cached[["year"]]]
-    expired <- cached %>%
+    not_available <- yy[!yy %in% available[["year"]]]
+    expired <- available %>%
       filter(status == "Continuing"
              | is.na(status) & year == year(Sys.time())) %>%
       group_by(year) %>%
@@ -175,13 +188,13 @@ get_sinf.diseaseform <- function(x,
       .[["year"]]
     message("- Expired records for current request (older than ",
             cco,
-            "): ", nrow(filter(cached, year %in% expired)), ".")
-    to_download <- c(not_cached, expired) %>% sort
+            "): ", nrow(filter(available, year %in% expired)), ".")
+    to_download <- c(not_available, expired) %>% sort
   }
   if(!new_download) {
     suppressMessages(back_to_cache <- entered %>%
                        anti_join(cache, .) %>%
-                       rbind(filter(cached, !year %in% expired)))
+                       rbind(filter(available, !year %in% expired)))
   } else {
     suppressMessages(back_to_cache <- anti_join(cache,
                                                 entered))
@@ -200,8 +213,8 @@ get_sinf.diseaseform <- function(x,
     message("- Parsing yearly summaries (", length(summaries), "):")
     globals$P1counter <- 0
     summaries %<>% lapply(parse_sinf)
-    summaries <- do.call("rbind", summaries)
-    summaries <- as_data_frame(c(list(disease = rep(as.character(di),
+    summaries %<>% do.call("rbind", .)
+    summaries  <- as_data_frame(c(list(disease = rep(as.character(di),
                                                     nrow(summaries))),
                                  as.list(summaries)))
     message("- Downloaded records to cache: ", nrow(summaries), ".")
@@ -219,7 +232,7 @@ get_sinf.diseaseform <- function(x,
     message("- Cache not written because identical.")
   }
   if(!new_download) {
-    ret <- rbind(filter(cached, !year %in% expired), summaries) %>%
+    ret <- rbind(filter(available, !year %in% expired), summaries) %>%
       arrange(year, country, reportid)
   } else {
     ret <- summaries
