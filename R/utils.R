@@ -12,3 +12,10 @@ update_sinf_data <- function(file = "sinf_cache.rds", new_download = FALSE,
     system("Rcmd.exe INSTALL --no-multiarch --with-keep.source .")
   }
 }
+
+#' @importFrom magrittr %<>%
+custom_warning <- function(subclass, message, call = sys.call(-1), ...) {
+  w <- simpleWarning(message, call = call, ...)
+  class(w) %<>% append(subclass)
+  warning(w)
+}
