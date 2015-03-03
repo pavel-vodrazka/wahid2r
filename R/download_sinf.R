@@ -38,11 +38,15 @@ download_sinf <- function(id, type, year) {
   if(!exists("D1counter", where = globals, inherits = FALSE)) {
     globals$D1counter <- 0
   }
-  globals$D1counter <- globals$D1counter + 1
+  globals$D1counter %<>% add(1)
   if(globals$D1counter %% 50 == 0) {
-    cat(globals$D1counter, "\n")
+    message(globals$D1counter, "\n  ", appendLF = FALSE)
   } else {
-    if(globals$D1counter %% 10 == 0) cat("|") else cat(".")
+    if(globals$D1counter %% 10 == 0) {
+      message("|", appendLF = FALSE)
+      } else {
+        message(".", appendLF = FALSE)
+      }
   }
   return(list(year = year,
               disease_id_hidden = id,

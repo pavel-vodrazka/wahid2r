@@ -84,9 +84,13 @@ parse_sinf <- function(x) {
   }
   globals$P1counter %<>% add(1)
   if(globals$P1counter %% 50 == 0) {
-    cat(globals$P1counter, "\n")
+    message(globals$P1counter, "\n  ", appendLF = FALSE)
   } else {
-    if(globals$P1counter %% 10 == 0) cat("|") else cat(".")
+    if(globals$P1counter %% 10 == 0) {
+      message("|", appendLF = FALSE)
+      } else {
+        message(".", appendLF = FALSE)
+      }
   }
   return(as_data_frame(data.frame(x, stringsAsFactors = FALSE)))
 }

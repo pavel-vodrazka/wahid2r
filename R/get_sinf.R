@@ -201,7 +201,8 @@ get_sinf.diseaseform <- function(x,
   }
   message("- Back to cache records (all diseases): ", nrow(back_to_cache), ".")
   if(length(to_download) > 0) {
-    message("- Downloading yearly summaries (", length(to_download), "):")
+    message("- Downloading yearly summaries (", length(to_download), "):",
+            "\n  ", appendLF = FALSE)
     globals$D1counter <- 0
     summaries <- sapply(to_download,
                         function(y) {
@@ -210,14 +211,15 @@ get_sinf.diseaseform <- function(x,
                                        type = x$disease_type_hidden)
                         },
                         simplify = FALSE)
-    message("- Parsing yearly summaries (", length(summaries), "):")
+    message("\n- Parsing yearly summaries (", length(summaries), "):",
+            "\n  ", appendLF = FALSE)
     globals$P1counter <- 0
     summaries %<>% lapply(parse_sinf)
     summaries %<>% do.call("rbind", .)
     summaries  <- as_data_frame(c(list(disease = rep(as.character(di),
                                                     nrow(summaries))),
                                  as.list(summaries)))
-    message("- Downloaded records to cache: ", nrow(summaries), ".")
+    message("\n- Downloaded records to cache: ", nrow(summaries), ".")
   } else {
     summaries <- sinf()
   }
