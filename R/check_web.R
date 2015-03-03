@@ -38,7 +38,7 @@ check_web <- function(hash_file = "hashes.rds",
   message("Checking whether the OIE WAHID website structure didn't change:")
   url <- "http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary"
   val <- list()
-  resp1 <- GET(url)
+  resp1 <- GET(url, config = list(ssl.verifypeer = FALSE))
   stop_for_status(resp1)
   doc1 <- html(resp1, encoding = "UTF-8")
   val[["disease form attributes"]] <- doc1 %>%
@@ -55,7 +55,8 @@ check_web <- function(hash_file = "hashes.rds",
     html_nodes("select") %>%
     html_attrs %>%
     digest(algo = "md5")
-  resp2 <- GET(paste0(url, "/listoutbreak"))
+  resp2 <- GET(paste0(url, "/listoutbreak"),
+               config = list(ssl.verifypeer = FALSE))
   stop_for_status(resp2)
   doc2 <- html(resp2, encoding = "UTF-8")
   val[["outbreakreport form attributes"]] <- doc2 %>%
