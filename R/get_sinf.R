@@ -6,6 +6,7 @@ get_sinf <- function(x,
                      new_download = FALSE,
                      file = "sinf_cache.rds",
                      cache_interval = "1 day",
+                     suppress_messages = FALSE,
                      ...) {
   UseMethod("get_sinf")
 }
@@ -19,7 +20,16 @@ get_sinf.numeric <- function(x,
                              countries_match = "all",
                              new_download = FALSE,
                              file = "sinf_cache.rds",
-                             cache_interval = "1 day") {
+                             cache_interval = "1 day",
+                             suppress_messages = FALSE) {
+  if (suppress_messages) {
+    return(suppressMessages(get_sinf.numeric(x, years, countries,
+                                             countries_match = countries_match,
+                                             new_download = new_download,
+                                             file = file,
+                                             cache_interval = cache_interval,
+                                             suppress_messages = FALSE)))
+  }
   if (length(x) != 1 || is.na(x)) {
     message("- Incorrect specification of disease_id: ",
             capture.output(str(x)), ".")
@@ -48,7 +58,16 @@ get_sinf.character <- function(x,
                                countries_match = "all",
                                new_download = FALSE,
                                file = "sinf_cache.rds",
-                               cache_interval = "1 day") {
+                               cache_interval = "1 day",
+                               suppress_messages = FALSE) {
+  if (suppress_messages) {
+    return(suppressMessages(get_sinf.character(x, years, countries,
+                                               countries_match = countries_match,
+                                               new_download = new_download,
+                                               file = file,
+                                               cache_interval = cache_interval,
+                                               suppress_messages = FALSE)))
+  }
   if (length(x) != 1 || is.na(x)) {
     message("- Incorrect specification of the search pattern: ",
             capture.output(str(x)), ".")
@@ -86,7 +105,17 @@ get_sinf.diseaseform <- function(x,
                                  new_download = FALSE,
                                  file = "sinf_cache.rds",
                                  cache_interval = "1 day",
-                                 check_x = TRUE) {
+                                 check_x = TRUE,
+                                 suppress_messages = FALSE) {
+  if (suppress_messages) {
+    return(suppressMessages(get_sinf.diseaseform(x, years, countries,
+                                                 countries_match = countries_match,
+                                                 new_download = new_download,
+                                                 file = file,
+                                                 cache_interval = cache_interval,
+                                                 check_x = check_x,
+                                                 suppress_messages = FALSE)))
+  }
   message("Getting summaries of immediate notifications and follow-ups:")
   if (!exists("web_not_changed", where = globals, inherits = FALSE)) {
     check_web()
@@ -292,11 +321,24 @@ sinf.NULL <- function() {
 sinf.tbl_df <- function(x, ...) {
   templ <- sinf.NULL()
   trimmed <- x[0, ]
-  if (!identical(templ, trimmed)) {
-    message("- Supplied tbl_df has wrong format: ", capture.output(str(x)), ".")
+  if (!isTRUE(all.equal(templ, trimmed))) {
+    message("- Supplied tbl_df has wrong format:\n\n  ",
+            gsub("\\$", "\n  $", capture.output(str(x))), ".")
     return(NULL)
   }
   class(x) %<>% append("sinf", after = 0)
+  x
+}
+
+#' @export
+sinf.sinf <- function(x, ...) {
+  templ <- sinf.NULL()
+  trimmed <- x[0, ]
+  if (!isTRUE(all.equal(templ, trimmed))) {
+    message("- Supplied sinf has wrong format:\n\n  ",
+            gsub("\\$", "\n  $", capture.output(str(x))), ".")
+    return(NULL)
+  }
   x
 }
 
