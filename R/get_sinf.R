@@ -1,3 +1,57 @@
+#' Downloads and processes the Summaries of Immediate notifications and
+#' Follow-ups.
+#'
+#' High-level generic function \code{get_sinf} fetches and processes the
+#' Summaries of immediate notifications and Follow-ups for specified disease,
+#' years, and countries from the OIE WAHID website
+#' (\href{http://www.oie.int/wahis_2/public/wahid.php/Diseaseinformation/Immsummary}{WAHID
+#' --> Disease information --> Immediate notifications and Follow-ups}).
+#'
+#' The function utilises data supplied with the package (\code{data(SINF)}) and
+#' also a local cache to minimise OIE website traffic. Information on the
+#' website is organised by disease and year. Records for a given year older than
+#' \code{cache_interval} are considered expired if any of the records has status
+#' "Continuing" or if that year is the current year or the last year (if run in
+#' the first quarter).
+#'
+#' @section Side effects: This function sets variables \code{web_not_changed},
+#'   \code{values_labels}, \code{years_available}, and
+#'   \code{countries_available} (if not set previously) in the \code{globals}
+#'   environment that are utilized by other functions from the package. As
+#'   mentioned above, it also writes a cache file at the location specified by
+#'   the user.
+#'
+#' @param x Specifies the disease of interest. See methods.
+#' @param years An integer vector specifying the years of interest. Defaults to
+#'   the full range available (2005 - ) if not specified.
+#' @param countries A character vector specifying the countries or areas of
+#'   interest (see \code{\link{match_countries}}). Defaults to whole world if
+#'   not specified.
+#' @param countries_match A character vector containing any combination of
+#'   column names to match \code{countries} against in
+#'   \code{countries_available} (see \code{\link{get_countries}}), or
+#'   \code{"all"} (the default). Ignored if \code{countries} not specified.
+#' @param new_download A logical scalar. If \code{TRUE}, the cached data (either
+#'   supplied with the package or in the \code{file} argument) are ignored and
+#'   the data are fetched from the web.
+#' @param file A character scalar. Path to the cache file (see
+#'   \code{\link{read_cache}}, \code{\link{write_cache}}).
+#' @param cache_interval A specification of a duration (default \code{"1 day"})
+#'   or a date (see \code{\link{cache_cut_off}}). Older records of uncomplete
+#'   years (see details) are downloaded, records of uncomplete years within the
+#'   cache interval and record of complete years are taken from the \code{file}
+#'   or the package-supplied data.
+#' @param suppress_messages A logical scalar. If \code{TRUE}, all informative
+#'   messages from the function are suppressed.
+#'
+#' @return An object of class \code{c("sinf", "tbl", "tbl_df", "data.frame")}
+#'   containing summaries of immediate notifications and follow-ups from the OIE
+#'   WAHID website for the disease, years, and countries given.
+#' @return \code{NULL} if anything specified incorrectly or not matched.
+#'
+#' @examples
+#' \dontrun{get_sinf("african swine fever")}
+#'
 #' @export
 get_sinf <- function(x,
                      years,
@@ -11,6 +65,7 @@ get_sinf <- function(x,
   UseMethod("get_sinf")
 }
 
+#' @describeIn get_sinf
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter
 #' @export
@@ -51,6 +106,7 @@ get_sinf.numeric <- function(x,
                        check_x = FALSE)
 }
 
+#' @describeIn get_sinf
 #' @export
 get_sinf.character <- function(x,
                                years,
@@ -85,6 +141,12 @@ get_sinf.character <- function(x,
                        check_x = FALSE)
 }
 
+#' @describeIn get_sinf
+#'
+#' @param check_x A logical scalar specifying whether the disease given as
+#'   \code{diseaseform} should be checked. Set to \code{FALSE} when
+#'   \code{get_sinf.diseaseform} called from other methods.
+#'
 #' @importFrom dplyr inner_join
 #' @importFrom dplyr data_frame
 #' @importFrom dplyr select
@@ -212,9 +274,12 @@ get_sinf.diseaseform <- function(x,
     to_download <- yy
   } else {
     not_available <- yy[!yy %in% available[["year"]]]
+    year <- year(Sys.time())
+    month <- month(Sys.time())
+    current <- if (month > 3) year else c(year - 1, year)
     expired <- available %>%
       filter(status == "Continuing"
-             | is.na(status) & year == year(Sys.time())) %>%
+             | year %in% current) %>%
       group_by(year) %>%
       summarise(oldest = min(SINF_retrieved)) %>%
       filter(oldest < cco) %>%
