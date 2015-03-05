@@ -23,8 +23,8 @@ the data are fetched from the web.}
   \code{TRUE}, the cache is written to the file specified.}
 }
 \value{
-An object of class \code{c("tbl", "tbl_df", "data.frame",
-  "countries")} containing records for all countries available on the OIE
+An object of class \code{c("countries", "tbl", "tbl_df",
+  "data.frame")} containing records for all countries available on the OIE
   WAHID website.
 
 \code{NULL} (invisibly) when \code{set_global_only} is set to

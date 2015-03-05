@@ -29,8 +29,8 @@
 #'   instead of the dataset supplied with the package. If \code{new_download} is
 #'   \code{TRUE}, the cache is written to the file specified.
 #'
-#' @return An object of class \code{c("tbl", "tbl_df", "data.frame",
-#'   "countries")} containing records for all countries available on the OIE
+#' @return An object of class \code{c("countries", "tbl", "tbl_df",
+#'   "data.frame")} containing records for all countries available on the OIE
 #'   WAHID website.
 #' @return \code{NULL} (invisibly) when \code{set_global_only} is set to
 #'   \code{TRUE} or (invisibly) when \code{print_only} is set to \code{TRUE}.
@@ -112,7 +112,7 @@ get_countries <- function(print_only = FALSE,
     }) %>%
       do.call(rbind, .) %>%
       left_join(., select(countryRegions, ISO3:GEO3))
-    class(countries) %<>% append("countries")
+    class(countries) %<>% append("countries", after = 0)
     globals$countries_available <- countries
     write_cache(globals$countries_available, file)
   }
