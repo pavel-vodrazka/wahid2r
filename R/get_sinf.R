@@ -162,6 +162,8 @@ get_sinf.character <- function(x,
 #' @importFrom lubridate year
 #' @importFrom magrittr %>%
 #' @importFrom magrittr %<>%
+#' @importFrom plyr ldply
+#' @importFrom plyr llply
 #' @export
 get_sinf.diseaseform <- function(x,
                                  years,
@@ -232,7 +234,7 @@ get_sinf.diseaseform <- function(x,
     cc <- globals$countries_available
   }
   entered <- data_frame(disease_id_hidden = x$disease_id_hidden, year = yy)
-  di <- select(x, label)
+  di <- select(x, label) %>% as.character
   message("- Disease: ", di,
           "\n- Country(ies): ", paste0(cc$ISO3, collapse = " "),
           "\n- Year(s): ", deparse(yy))
@@ -261,12 +263,11 @@ get_sinf.diseaseform <- function(x,
   if (nrow(cached) == 0 && nrow(supplied) == 0) {
     available <- sinf()
   } else {
-    available <- rbind(cached, supplied) %>%
-      group_by(disease, year, disease_id_hidden, disease_type_hidden, country,
-               status, date, summary_country, reportid) %>%
-      summarise(SINF_retrieved = max(SINF_retrieved)) %>%
-      ungroup %>%
-      select(1:4, 10, 5:9)
+    suppressMessages(available <- rbind(cached, supplied) %>%
+                       group_by(year, country, reportid) %>%
+                       summarise(SINF_retrieved = max(SINF_retrieved)) %>%
+                       ungroup %>%
+                       semi_join(rbind(cached, supplied), .))
     class(available) %<>% append("sinf", after = 0)
   }
   message("- Total available records for current request: ",
@@ -304,18 +305,15 @@ get_sinf.diseaseform <- function(x,
   if(length(to_download) > 0) {
     message("- Downloading yearly summaries (", length(to_download), "):",
             "\n  ", appendLF = FALSE)
-    summaries <- sapply(to_download,
-                        print_progress(download_sinf),
-                        id = x$disease_id_hidden,
-                        type = x$disease_type_hidden,
-                        simplify = FALSE)
+    summaries <- llply(to_download,
+                       print_progress(download_sinf),
+                       id = x$disease_id_hidden,
+                       type = x$disease_type_hidden)
     message("\n- Parsing yearly summaries (", length(summaries), "):",
             "\n  ", appendLF = FALSE)
-    summaries %<>% lapply(print_progress(parse_sinf))
-    summaries %<>% do.call("rbind", .)
-    summaries  <- as_data_frame(c(list(disease = rep(as.character(di),
-                                                    nrow(summaries))),
-                                 as.list(summaries)))
+    summaries %<>% ldply(print_progress(parse_sinf)) %>%
+      cbind(disease = di, .) %>%
+      as_data_frame
     message("\n- Downloaded records to cache: ", nrow(summaries), ".")
   } else {
     summaries <- sinf()
