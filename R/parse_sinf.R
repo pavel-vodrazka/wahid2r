@@ -79,18 +79,5 @@ parse_sinf <- function(x) {
     #         event_summary_link <- NA_character_
     #         full_report_link <- NA_character_
   }
-  if(!exists("P1counter", where = globals, inherits = FALSE)) {
-    globals$P1counter <- 0
-  }
-  globals$P1counter %<>% add(1)
-  if(globals$P1counter %% 50 == 0) {
-    message(globals$P1counter, "\n  ", appendLF = FALSE)
-  } else {
-    if(globals$P1counter %% 10 == 0) {
-      message("|", appendLF = FALSE)
-      } else {
-        message(".", appendLF = FALSE)
-      }
-  }
   return(as_data_frame(data.frame(x, stringsAsFactors = FALSE)))
 }

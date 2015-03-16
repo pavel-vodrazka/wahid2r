@@ -153,10 +153,13 @@ get_sinf.character <- function(x,
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarise
+#' @importFrom dplyr ungroup
 #' @importFrom dplyr anti_join
 #' @importFrom dplyr as_data_frame
 #' @importFrom dplyr arrange
 #' @importFrom dplyr distinct_
+#' @importFrom lubridate month
+#' @importFrom lubridate year
 #' @importFrom magrittr %>%
 #' @importFrom magrittr %<>%
 #' @export
@@ -301,18 +304,14 @@ get_sinf.diseaseform <- function(x,
   if(length(to_download) > 0) {
     message("- Downloading yearly summaries (", length(to_download), "):",
             "\n  ", appendLF = FALSE)
-    globals$D1counter <- 0
     summaries <- sapply(to_download,
-                        function(y) {
-                          download_sinf(year = y,
-                                       id = x$disease_id_hidden,
-                                       type = x$disease_type_hidden)
-                        },
+                        print_progress(download_sinf),
+                        id = x$disease_id_hidden,
+                        type = x$disease_type_hidden,
                         simplify = FALSE)
     message("\n- Parsing yearly summaries (", length(summaries), "):",
             "\n  ", appendLF = FALSE)
-    globals$P1counter <- 0
-    summaries %<>% lapply(parse_sinf)
+    summaries %<>% lapply(print_progress(parse_sinf))
     summaries %<>% do.call("rbind", .)
     summaries  <- as_data_frame(c(list(disease = rep(as.character(di),
                                                     nrow(summaries))),

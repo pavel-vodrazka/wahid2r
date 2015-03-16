@@ -19,3 +19,22 @@ custom_warning <- function(subclass, message, call = sys.call(-1), ...) {
   class(w) %<>% append(subclass)
   warning(w)
 }
+
+
+#' @export
+print_progress <- function(f) {
+  i <- 1
+  function(...) {
+    if(i %% 50 == 0) {
+      message(i, "\n  ", appendLF = FALSE)
+    } else {
+      if(i %% 10 == 0) {
+        message("|", appendLF = FALSE)
+      } else {
+        message(".", appendLF = FALSE)
+      }
+    }
+    i <<- i + 1
+    f(...)
+  }
+}

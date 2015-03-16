@@ -1,7 +1,7 @@
 #' @importFrom httr POST
 #' @importFrom httr stop_for_status
 #' @export
-download_sinf <- function(id, type, year) {
+download_sinf <- function(year, id, type) {
   if(any(missing(id),
          missing(type),
          missing(year)))
@@ -35,19 +35,6 @@ download_sinf <- function(id, type, year) {
                            year = year),
                encode = "form")
   stop_for_status(resp)
-  if(!exists("D1counter", where = globals, inherits = FALSE)) {
-    globals$D1counter <- 0
-  }
-  globals$D1counter %<>% add(1)
-  if(globals$D1counter %% 50 == 0) {
-    message(globals$D1counter, "\n  ", appendLF = FALSE)
-  } else {
-    if(globals$D1counter %% 10 == 0) {
-      message("|", appendLF = FALSE)
-      } else {
-        message(".", appendLF = FALSE)
-      }
-  }
   return(list(year = year,
               disease_id_hidden = id,
               disease_type_hidden = type,
